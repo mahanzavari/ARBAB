@@ -1,4 +1,5 @@
-#include "record.h"
+#include "../header/record.h"
+#include "../header/table.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

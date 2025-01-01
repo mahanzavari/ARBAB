@@ -1,7 +1,15 @@
 #ifndef RECORD_H
 #define RECORD_H
 
+#define MAX_COLUMNS 8
+
+
+// #include "table.h"
 #include <stdlib.h>
+
+// Forward declaration of Table
+struct Table;
+
 
 typedef struct Record {
     void* data[MAX_COLUMNS];

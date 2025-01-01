@@ -1,7 +1,9 @@
 #ifndef HASHMAP_H
 #define HASHMAP_H
 
-#include "table.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 
 // Define a generic hashmap entry
 typedef struct HashEntry {

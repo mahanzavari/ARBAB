@@ -1,10 +1,25 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-#include ""
+#include "../header/commands.h"
+#include "../header/utils/hashmap.h" // For table management via HashMap
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
+
+
+// Table* tables[10]; // Array to store tables (fixed size for simplicity)
+#include "../header/utils/hashmap.h"
+
+HashMap* table_map;
+
+int num_tables = 0;
+
+
+
+
+// fnuction headers
 void help(void);
 // use void when you get bugs 
+// int main(int args , char *argv[]){
 int main(void){
      char command[256];
      // the input logic

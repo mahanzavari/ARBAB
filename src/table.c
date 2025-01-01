@@ -1,4 +1,7 @@
-#include "table.h"
+#include "../header/table.h"
+#include "../header/record.h"
+#include "../header/rbtree.h"
+#include "../header/utils/hashmap.h" // For HashMap integration
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -14,13 +17,17 @@ int find_column_index(Table* table, const char* column_name) {
 }
 
 // Function to find a table by name
+// Table* find_table(const char* table_name) {
+//     for (int i = 0; i < num_tables; i++) {
+//         if (strcmp(tables[i]->name, table_name) == 0) {
+//             return tables[i];
+//         }
+//     }
+//     return NULL;
+// }
+
 Table* find_table(const char* table_name) {
-    for (int i = 0; i < num_tables; i++) {
-        if (strcmp(tables[i]->name, table_name) == 0) {
-            return tables[i];
-        }
-    }
-    return NULL;
+    return (Table*)hashmap_get(table_map, table_name);
 }
 
 

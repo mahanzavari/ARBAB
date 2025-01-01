@@ -1,4 +1,5 @@
-#include "rbtree.h"
+#include "../header/rbtree.h"
+#include "../header/record.h"
 #include <stdlib.h>
 #include <string.h>
 
