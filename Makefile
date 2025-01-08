@@ -1,32 +1,25 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c11 -Iinclude
-OBJ = src/table.o src/record.o src/rbtree.o src/commands.o src/utils/hashmap.o src/utils/merge_sort.o src/main.o
+CFLAGS = -Wall -Wextra -std=c99
+INCLUDES = -Iinclude
+SRC_DIR = src
+OBJ_DIR = obj
+BIN_DIR = bin
 
-all: project
+SRCS = $(wildcard $(SRC_DIR)/*.c)
+OBJS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
+TARGET = $(BIN_DIR)/final_with_hashmap
 
-project: $(OBJ)
-	$(CC) $(CFLAGS) -o project $(OBJ)
+all: $(TARGET)
 
-src/main.o: src/main.c include/commands.h include/utils/hashmap.h
-	$(CC) $(CFLAGS) -c src/main.c -o $@
+$(TARGET): $(OBJS)
+	@mkdir -p $(BIN_DIR)
+	$(CC) $(CFLAGS) $(OBJS) -o $(TARGET)
 
-src/table.o: src/table.c include/table.h include/record.h include/utils/hashmap.h
-	$(CC) $(CFLAGS) -c src/table.c -o $@
-
-src/record.o: src/record.c include/record.h include/table.h
-	$(CC) $(CFLAGS) -c src/record.c -o $@
-
-src/rbtree.o: src/rbtree.c include/rbtree.h include/record.h
-	$(CC) $(CFLAGS) -c src/rbtree.c -o $@
-
-src/commands.o: src/commands.c include/commands.h include/utils/merge_sort.h include/rbtree.h
-	$(CC) $(CFLAGS) -c src/commands.c -o $@
-
-src/utils/hashmap.o: src/utils/hashmap.c include/utils/hashmap.h
-	$(CC) $(CFLAGS) -c src/utils/hashmap.c -o $@
-
-src/utils/merge_sort.o: src/utils/merge_sort.c include/utils/merge_sort.h
-	$(CC) $(CFLAGS) -c src/utils/merge_sort.c -o $@
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
-	rm -f src/*.o src/utils/*.o project
+	rm -rf $(OBJ_DIR) $(BIN_DIR)
+
+.PHONY: all clean

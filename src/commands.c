@@ -1,49 +1,79 @@
-#include "../header/commands.h"
-#include "../header/table.h"
-#include "../header/record.h"
-#include "../header/rbtree.h"
-#include "../header/utils/merge_sort.h" // For Merge Sort
-#include <stdio.h>
+#include "commands.h"
+#include "table.h"
+#include "hashmap.h"
+#include "rbtree.h"
+#include "utils.h"
+#include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
+void create_table_cmd(const char* command) {
+    char table_name[MAX_TABLE_NAME_LENGTH];
+    if (sscanf(command, "CREATE TABLE %s", table_name) == 1) {
+        if (hashmap_lookup(&hashmap, table_name) != NULL) {
+            printf("Error: Table '%s' already exists.\n", table_name);
+            return;
+        }
 
+        Table* new_table = (Table*)malloc(sizeof(Table));
+        if (!new_table) {
+            perror("Memory allocation failed");
+            exit(EXIT_FAILURE);
+        }
+        strcpy(new_table->name, table_name);
+        new_table->num_columns = 7; // Fixed columns
+        strcpy(new_table->columns[0].name, "student-number");
+        strcpy(new_table->columns[0].type, "INTEGER");
+        strcpy(new_table->columns[1].name, "general-course-name");
+        strcpy(new_table->columns[1].type, "STRING");
+        strcpy(new_table->columns[2].name, "general-course-instructor");
+        strcpy(new_table->columns[2].type, "STRING");
+        strcpy(new_table->columns[3].name, "general-course-score");
+        strcpy(new_table->columns[3].type, "INTEGER");
+        strcpy(new_table->columns[4].name, "core-course-name");
+        strcpy(new_table->columns[4].type, "STRING");
+        strcpy(new_table->columns[5].name, "core-course-instructor");
+        strcpy(new_table->columns[5].type, "STRING");
+        strcpy(new_table->columns[6].name, "core-course-score");
+        strcpy(new_table->columns[6].type, "INTEGER");
+        new_table->head = NULL;
+        new_table->tail = NULL;
+        new_table->index_root = NULL;
 
+        hashmap_insert(&hashmap, table_name, new_table);
+        printf("Table '%s' created successfully.\n", table_name);
+    } else {
+        printf("Invalid CREATE TABLE command.\n");
+    }
+}
 
-// DELETE TABLE <table_name>
 void delete_table_cmd(const char* command) {
     char table_name[MAX_TABLE_NAME_LENGTH];
     if (sscanf(command, "DELETE TABLE %s", table_name) == 1) {
-        int found = -1;
-        for (int i = 0; i < num_tables; i++) {
-            if (strcmp(tables[i]->name, table_name) == 0) {
-                found = i;
-                break;
-            }
-        }
-        if (found != -1) {
-            Table* table_to_delete = tables[found];
-            Record* current = table_to_delete->head;
-            while (current != NULL) {
-                Record* next = current->next;
-                free_record_data(table_to_delete, current);
-                current = next;
-            }
-            free(table_to_delete);
-            // Shift remaining tables
-            for (int i = found; i < num_tables - 1; i++) {
-                tables[i] = tables[i + 1];
-            }
-            num_tables--;
-            printf("Table '%s' deleted successfully.\n", table_name);
-        } else {
+        Table* table = hashmap_lookup(&hashmap, table_name);
+        if (table == NULL) {
             printf("Error: Table '%s' not found.\n", table_name);
+            return;
         }
+
+        Record* current = table->head;
+        while (current != NULL) {
+            Record* next = current->next;
+            free_record_data(table, current);
+            current = next;
+        }
+
+        rbt_free_tree(table->index_root);
+
+        hashmap_remove(&hashmap, table_name);
+
+        free(table);
+        printf("Table '%s' deleted successfully.\n", table_name);
     } else {
         printf("Invalid DELETE TABLE command.\n");
     }
 }
 
-// CREATE INDEX <table_name>
 void create_index_cmd(const char* command) {
     char table_name[MAX_TABLE_NAME_LENGTH];
     if (sscanf(command, "CREATE INDEX %s", table_name) == 1) {
@@ -53,7 +83,6 @@ void create_index_cmd(const char* command) {
             return;
         }
 
-        // Assuming index is always on student-number (primary key)
         RBTreeNode* index_root = NULL;
         Record* current = table->head;
         while (current != NULL) {
@@ -62,26 +91,41 @@ void create_index_cmd(const char* command) {
         }
         printf("Index created on table '%s' (student-number).\n", table_name);
 
-        // Store the index root in the table structure (not implemented here for simplicity)
-        // In a real implementation, you would add a field to the Table struct for the index root.
+        table->index_root = index_root;
     } else {
         printf("Invalid CREATE INDEX command.\n");
     }
 }
 
-// ADD <table_name> <column_name_1> <value_1> ... <column_name_n> <value_n>
 void add_record_cmd(const char* command) {
     char table_name[MAX_TABLE_NAME_LENGTH];
-    char* token;
-    char* rest = (char*)command;
+    char* tokens[50];
+    int num_tokens = 0;
 
-    token = strtok_r(rest, " ", &rest); // ADD
-    token = strtok_r(rest, " ", &rest); // table_name
-    if (token == NULL) {
+    char* rest = (char*)command;
+    char* token;
+
+    token = strtok_r(rest, " ", &rest);
+    if (token == NULL || strcmp(token, "ADD") != 0) {
         printf("Invalid ADD command.\n");
         return;
     }
+
+    token = strtok_r(rest, " ", &rest);
+    if (token == NULL) {
+        printf("Invalid ADD command. Missing table name.\n");
+        return;
+    }
     strcpy(table_name, token);
+
+    while ((token = strtok_r(rest, " ", &rest)) != NULL && num_tokens < 50) {
+        tokens[num_tokens++] = token;
+    }
+
+    if (num_tokens % 2 != 0) {
+        printf("Error: Incorrect number of column-value pairs.\n");
+        return;
+    }
 
     Table* table = find_table(table_name);
     if (table == NULL) {
@@ -89,33 +133,21 @@ void add_record_cmd(const char* command) {
         return;
     }
 
-    // Extract column-value pairs
-    char* values[MAX_COLUMNS];
-    int value_index = 0;
     char* col_names[MAX_COLUMNS];
+    char* values[MAX_COLUMNS];
     int col_index = 0;
+    int value_index = 0;
 
-    while ((token = strtok_r(rest, " ", &rest)) != NULL && value_index < table->num_columns) {
-        if (value_index % 2 == 0) {
-            col_names[col_index++] = token;
-        } else {
-            values[value_index / 2] = token;
-        }
-        value_index++;
+    for (int i = 0; i < num_tokens; i += 2) {
+        col_names[col_index++] = tokens[i];
+        values[value_index++] = tokens[i + 1];
     }
 
-    if (value_index != table->num_columns * 2) {
-        printf("Error: Incorrect number of column-value pairs.\n");
-        return;
-    }
-
-    // Create a temporary array to hold values in the correct column order
     char* ordered_values[MAX_COLUMNS];
     for (int i = 0; i < table->num_columns; i++) {
         ordered_values[i] = NULL;
     }
 
-    // Map the input values to the correct column order
     for (int i = 0; i < col_index; i++) {
         int col_idx = find_column_index(table, col_names[i]);
         if (col_idx != -1) {
@@ -126,7 +158,6 @@ void add_record_cmd(const char* command) {
         }
     }
 
-    // Check if all values are provided
     for (int i = 0; i < table->num_columns; i++) {
         if (ordered_values[i] == NULL) {
             printf("Error: Missing value for column '%s'.\n", table->columns[i].name);
@@ -135,8 +166,11 @@ void add_record_cmd(const char* command) {
     }
 
     Record* new_record = create_record(table, ordered_values);
+    if (new_record == NULL) {
+        printf("Error: Failed to create record.\n");
+        return;
+    }
 
-    // Check for duplicate primary key
     int student_number = atoi(ordered_values[0]);
     Record* current = table->head;
     while (current != NULL) {
@@ -148,7 +182,6 @@ void add_record_cmd(const char* command) {
         current = current->next;
     }
 
-    // Add to linked list
     if (table->head == NULL) {
         table->head = new_record;
         table->tail = new_record;
@@ -158,10 +191,13 @@ void add_record_cmd(const char* command) {
         table->head = new_record;
     }
 
+    if (table->index_root != NULL) {
+        table->index_root = rbt_insert(table->index_root, student_number, new_record);
+    }
+
     printf("Record added to table '%s'.\n", table_name);
 }
 
-// DELETE <table_name> <column_name> <value>
 void delete_record_cmd(const char* command) {
     char table_name[MAX_TABLE_NAME_LENGTH];
     char column_name[MAX_COLUMN_NAME_LENGTH];
@@ -216,7 +252,6 @@ void delete_record_cmd(const char* command) {
     }
 }
 
-// UPDATE <table_name> <column_name> <old_value> <new_value>
 void update_record_cmd(const char* command) {
     char table_name[MAX_TABLE_NAME_LENGTH];
     char column_name[MAX_COLUMN_NAME_LENGTH];
@@ -256,23 +291,6 @@ void update_record_cmd(const char* command) {
     }
 }
 
-void create_table_cmd(const char* command) {
-    char table_name[MAX_TABLE_NAME_LENGTH];
-    if (sscanf(command, "CREATE TABLE %s", table_name) == 1) {
-        if (find_table(table_name)) {
-            printf("Table '%s' already exists.\n", table_name);
-            return;
-        }
-        Table* new_table = (Table*)malloc(sizeof(Table));
-        // Initialize the table
-        hashmap_insert(table_map, table_name, new_table);
-        printf("Table '%s' created successfully.\n", table_name);
-    } else {
-        printf("Invalid CREATE TABLE command.\n");
-    }
-}
-
-// SELECT <table_name> <column_name> <value> [SORTED]
 void select_records_cmd(const char* command) {
     char table_name[MAX_TABLE_NAME_LENGTH];
     char column_name[MAX_COLUMN_NAME_LENGTH];
@@ -330,38 +348,24 @@ void select_records_cmd(const char* command) {
 
         printf("Selected records from table '%s':\n", table_name);
 
-        if (strcmp(sorted, "SORTED") == 0 && strcmp(table->columns[col_index].type, "INTEGER") == 0) {
-            matching_records_head = merge_sort(matching_records_head, col_index);
-            Record* sorted_current = matching_records_head;
-            while (sorted_current != NULL) {
-                for (int i = 0; i < table->num_columns; i++) {
-                    printf("%s: ", table->columns[i].name);
-                    if (strcmp(table->columns[i].type, "INTEGER") == 0) {
-                        printf("%d\t", *(int*)sorted_current->data[i]);
-                    } else {
-                        printf("%s\t", (char*)sorted_current->data[i]);
-                    }
-                }
-                printf("\n");
-                sorted_current = sorted_current->next;
-            }
-        } else {
-            Record* print_current = matching_records_head;
-            while (print_current != NULL) {
-                for (int i = 0; i < table->num_columns; i++) {
-                    printf("%s: ", table->columns[i].name);
-                    if (strcmp(table->columns[i].type, "INTEGER") == 0) {
-                        printf("%d\t", *(int*)print_current->data[i]);
-                    } else {
-                        printf("%s\t", (char*)print_current->data[i]);
-                    }
-                }
-                printf("\n");
-                print_current = print_current->next;
-            }
+        if (strcmp(sorted, "SORTED") == 0) {
+            matching_records_head = merge_sort(matching_records_head, 0);
         }
 
-        // Free the temporary linked list of matching records
+        Record* print_current = matching_records_head;
+        while (print_current != NULL) {
+            for (int i = 0; i < table->num_columns; i++) {
+                printf("%s: ", table->columns[i].name);
+                if (strcmp(table->columns[i].type, "INTEGER") == 0) {
+                    printf("%d\t", *(int*)print_current->data[i]);
+                } else {
+                    printf("%s\t", (char*)print_current->data[i]);
+                }
+            }
+            printf("\n");
+            print_current = print_current->next;
+        }
+
         Record* temp = matching_records_head;
         while (temp != NULL) {
             Record* next = temp->next;
