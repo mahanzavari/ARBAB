@@ -1,8 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "commands.h"
-#include "hashmap.h"
+
+#include "../include/table.h"
+#include "../include/rbtree.h"
+#include "../include/commands.h"
+#include "../include/hashmap.h"
+
+// Define global variables
+HashMap hashmap; // Global hashmap
+Table* tables[10]; // Global array of tables
+int num_tables = 0; // Global counter for tables
 
 HashMap hashmap; // Global hashmap to store tables
 

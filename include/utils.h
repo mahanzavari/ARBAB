@@ -1,6 +1,6 @@
 #ifndef UTILS_H
 #define UTILS_H
-
+#include"data_structures.h"
 int parse_command(const char* command, char** tokens, int max_tokens);
 Record* merge(Record* left_half, Record* right_half, int col_index);
 Record* split(Record* head);

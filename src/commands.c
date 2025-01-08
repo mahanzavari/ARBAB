@@ -1,8 +1,8 @@
-#include "commands.h"
-#include "table.h"
-#include "hashmap.h"
-#include "rbtree.h"
-#include "utils.h"
+#include "../include/commands.h"
+#include "../include/table.h"
+#include "../include/hashmap.h"
+#include "../include/rbtree.h"
+#include "../include/utils.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

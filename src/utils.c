@@ -1,4 +1,5 @@
-#include "utils.h"
+#include "../include/utils.h"
+#include"../include/data_structures.h"
 #include <stdlib.h>
 #include <string.h>
 
