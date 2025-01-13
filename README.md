@@ -228,10 +228,10 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 If you have any questions or suggestions, feel free to reach out:
 
-- **Your Name**: [Your Email](mailto:your-email@example.com)
-- **GitHub**: [Your GitHub Profile](https://github.com/your-username)
+- **Your Name**: [Your Email](mailto:mahanzavari@gmail.com)
+- **GitHub**: [Your GitHub Profile](https://github.com/mahanzavari)
 
 ---
 
 Thank you for using my naive database! 🚀
-```
+
