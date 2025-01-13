@@ -1,4 +1,6 @@
-# Database Management System (DBMS) Project
+# ARBAB
+
+## Database Management System (DBMS) Project
 
 This project is a simple Database Management System (DBMS) implemented in C. It supports basic database operations such as creating tables, adding records, deleting records, updating records, and querying data. The system also includes indexing using a Red-Black Tree for efficient data retrieval.
 
@@ -231,5 +233,5 @@ If you have any questions or suggestions, feel free to reach out:
 
 ---
 
-Thank you for using this project! 🚀
+Thank you for using my naive database! 🚀
 ```
