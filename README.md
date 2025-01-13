@@ -1,6 +1,6 @@
-# ARBAB Database
+# Database Management System (DBMS) Project
 
-A simple database system implemented in C, featuring a hashmap for table storage and a Red-Black Tree for indexing. This project is designed to demonstrate basic database operations such as creating tables, adding records, deleting records, updating records, and querying data.
+This project is a simple Database Management System (DBMS) implemented in C. It supports basic database operations such as creating tables, adding records, deleting records, updating records, and querying data. The system also includes indexing using a Red-Black Tree for efficient data retrieval.
 
 ---
 
@@ -8,171 +8,204 @@ A simple database system implemented in C, featuring a hashmap for table storage
 
 - **Table Management**:
   - Create and delete tables.
-  - Add, update, and delete records.
+  - Define columns with specific data types (e.g., `INTEGER`, `STRING`).
+  
+- **Record Management**:
+  - Add, delete, and update records.
+  - Validate data (e.g., score ranges for courses).
+
 - **Indexing**:
-  - Red-Black Tree indexing on the `student-number` column for fast lookups.
+  - Create an index on the `student-number` column using a Red-Black Tree for faster lookups.
+
 - **Querying**:
-  - Select records based on conditions.
+  - Select records based on specific criteria.
   - Sort records by `student-number`.
-- **Data Structures**:
-  - Hashmap for storing tables.
-  - Linked list for storing records.
-  - Red-Black Tree for indexing.
+
+- **Help Command**:
+  - Provides a list of available commands and usage examples.
 
 ---
 
 ## Project Structure
 
-```
-ARBAB/
-├── include/               # Header files
-│   ├── commands.h         # Command-related functions
-│   ├── table.h            # Table and record structures
-│   ├── hashmap.h          # Hashmap implementation
-│   ├── rbtree.h           # Red-Black Tree implementation
-│   ├── utils.h            # Utility functions
-│   ├── globals.h          # Global variables
-├── src/                   # Source files
-│   ├── ARBAB_Database.c   # Main program
-│   ├── commands.c         # Command implementations
-│   ├── table.c            # Table and record functions
-│   ├── hashmap.c          # Hashmap functions
-│   ├── rbtree.c           # Red-Black Tree functions
-│   ├── utils.c            # Utility functions
-├── bin/                   # Compiled executable
-├── .vscode/               # VSCode configuration files
-│   ├── tasks.json         # Build task configuration
-│   ├── launch.json        # Debug configuration
-├── Makefile               # Build automation
-├── README.md              # Project documentation
-```
+The project is organized into the following files and directories:
+
+- **`src/`**: Contains the source code for the project.
+  - `command.c`: Handles command parsing and execution.
+  - `hashmap.c`: Implements a hashmap for table storage.
+  - `rbtree.c`: Implements a Red-Black Tree for indexing.
+  - `record.c`: Manages record creation and deletion.
+  - `table.c`: Manages table operations.
+  - `utils.c`: Provides utility functions (e.g., sorting, validation).
+  - `main.c`: The entry point of the program.
+
+- **`include/`**: Contains header files for the project.
+  - `command.h`: Declares command-related functions.
+  - `hashmap.h`: Declares hashmap-related structures and functions.
+  - `rbtree.h`: Declares Red-Black Tree-related structures and functions.
+  - `record.h`: Declares record-related structures and functions.
+  - `table.h`: Declares table-related structures and functions.
+  - `utils.h`: Declares utility functions.
+
+- **`README.md`**: This file, providing an overview of the project.
 
 ---
 
-## Commands
-
-The database supports the following commands:
-
-### Table Management
-- **Create Table**:
-  ```bash
-  CREATE TABLE <table_name>
-  ```
-  Creates a new table with predefined columns:
-  - `student-number` (INTEGER)
-  - `general-course-name` (STRING)
-  - `general-course-instructor` (STRING)
-  - `general-course-score` (INTEGER)
-  - `core-course-name` (STRING)
-  - `core-course-instructor` (STRING)
-  - `core-course-score` (INTEGER)
-
-- **Delete Table**:
-  ```bash
-  DELETE TABLE <table_name>
-  ```
-  Deletes an existing table and all its records.
-
-### Record Management
-- **Add Record**:
-  ```bash
-  ADD <table_name> <column_name_1> <value_1> ... <column_name_n> <value_n>
-  ```
-  Adds a new record to the specified table.
-
-- **Delete Record**:
-  ```bash
-  DELETE <table_name> <column_name> <value>
-  ```
-  Deletes all records in the specified table where the column matches the value.
-
-- **Update Record**:
-  ```bash
-  UPDATE <table_name> <column_name> <old_value> <new_value>
-  ```
-  Updates all records in the specified table where the column matches the old value.
-
-### Querying
-- **Select Records**:
-  ```bash
-  SELECT <table_name> <column_name> <value> [SORTED]
-  ```
-  Selects all records in the specified table where the column matches the value. If `SORTED` is specified, the results are sorted by `student-number`.
-
-### Indexing
-- **Create Index**:
-  ```bash
-  CREATE INDEX <table_name>
-  ```
-  Creates a Red-Black Tree index on the `student-number` column for the specified table.
-
----
-
-## Building the Project
+## Getting Started
 
 ### Prerequisites
-- **GCC**: Ensure you have GCC installed on your system.
-- **Make**: Optional, but recommended for building the project.
 
-### Using Makefile
-1. Open a terminal in the project root directory.
-2. Run the following command to build the project:
+- **C Compiler**: Ensure you have a C compiler installed (e.g., `gcc`).
+- **Make**: Ensure you have `make` installed for building the project.
+
+### Building the Project
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/your-repo-name.git
+   cd your-repo-name
+   ```
+
+2. Compile the project:
    ```bash
    make
    ```
-   This will compile all source files and create an executable in the `bin/` directory.
 
-3. To clean the build artifacts, run:
+   This will generate an executable named `database`.
+
+### Running the Project
+
+1. Run the executable:
    ```bash
-   make clean
+   ./database
    ```
 
-### Manual Build
-If you prefer to build manually, run:
-```bash
-gcc -Wall -Wextra -g3 -Iinclude src/ARBAB_Database.c src/commands.c src/table.c src/hashmap.c src/rbtree.c src/utils.c -o bin/ARBAB_Database
-```
+2. The program will prompt you to enter commands. Type `HELP` to see a list of available commands and their usage.
 
 ---
 
-## Running the Project
+## Usage
 
-1. After building the project, navigate to the `bin/` directory:
+### Available Commands
+
+1. **Create Table**:
    ```bash
-   cd bin
+   CREATE TABLE <table_name>
    ```
-
-2. Run the executable:
-   ```bash
-   ./ARBAB_Database
-   ```
-
-3. Enter commands interactively. For example:
+   Example:
    ```bash
    CREATE TABLE students
-   ADD students student-number 123 general-course-name "DSA" general-course-instructor "Dr. ARBAB" general-course-score 85 core-course-name "Physics" core-course-instructor "Dr. Zeinali" core-course-score 90
-   SELECT students student-number 123
    ```
 
-4. To exit the program, type:
+2. **Delete Table**:
+   ```bash
+   DELETE TABLE <table_name>
+   ```
+   Example:
+   ```bash
+   DELETE TABLE students
+   ```
+
+3. **Create Index**:
+   ```bash
+   CREATE INDEX <table_name>
+   ```
+   Example:
+   ```bash
+   CREATE INDEX students
+   ```
+
+4. **Add Record**:
+   ```bash
+   ADD <table_name> <column_name_1> <value_1> ... <column_name_n> <value_n>
+   ```
+   Example:
+   ```bash
+   ADD students student-number 12 general-course-name "DSA" general-course-instructor "Dr.ARBAB" general-course-score 85 core-course-name "Physics" core-course-instructor "Dr.zeinali" core-course-score 90
+   ```
+
+5. **Delete Record**:
+   ```bash
+   DELETE <table_name> <column_name> <value>
+   ```
+   Example:
+   ```bash
+   DELETE students student-number 12
+   ```
+
+6. **Update Record**:
+   ```bash
+   UPDATE <table_name> <column_name> <old_value> <new_value>
+   ```
+   Example:
+   ```bash
+   UPDATE students core-course-score 90 95
+   ```
+
+7. **Select Records**:
+   ```bash
+   SELECT <table_name> <column_name> <value> [SORTED]
+   ```
+   Example:
+   ```bash
+   SELECT students core-course-score 90 SORTED
+   ```
+
+8. **Help**:
+   ```bash
+   HELP
+   ```
+
+9. **Exit**:
    ```bash
    exit
    ```
 
 ---
 
-## Debugging in VSCode
+## Example Workflow
 
-1. Open the project in VSCode.
-2. Set breakpoints in your code.
-3. Press `F5` to start debugging.
-4. The program will run, and you can inspect variables, step through code, and debug issues.
+1. Create a table:
+   ```bash
+   CREATE TABLE students
+   ```
+
+2. Add a record:
+   ```bash
+   ADD students student-number 12 general-course-name "DSA" general-course-instructor "Dr.ARBAB" general-course-score 85 core-course-name "Physics" core-course-instructor "Dr.zeinali" core-course-score 90
+   ```
+
+3. Query records:
+   ```bash
+   SELECT students core-course-score 90 SORTED
+   ```
+
+4. Update a record:
+   ```bash
+   UPDATE students core-course-score 90 95
+   ```
+
+5. Delete a record:
+   ```bash
+   DELETE students student-number 12
+   ```
+
+6. Exit the program:
+   ```bash
+   exit
+   ```
 
 ---
 
 ## Contributing
 
-Contributions are welcome! If you find any issues or have suggestions for improvements, please open an issue or submit a pull request.
+Contributions are welcome! If you'd like to contribute, please follow these steps:
+
+1. Fork the repository.
+2. Create a new branch for your feature or bugfix.
+3. Commit your changes.
+4. Push your branch to your fork.
+5. Submit a pull request.
 
 ---
 
@@ -184,14 +217,19 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Acknowledgments
 
-- Red-Black Tree implementation inspired by [Introduction to Algorithms](https://mitpress.mit.edu/books/introduction-algorithms) by Cormen, Leiserson, Rivest, and Stein.
-- Hashmap implementation based on open-source examples.
+- This project was developed as part of a learning exercise in C programming and data structures.
+- Special thanks to the creators of the Red-Black Tree algorithm for providing an efficient indexing mechanism.
 
 ---
 
-## Author
+## Contact
 
-- **ARBAB**  
-  GitHub: [mahanzavari](https://github.com/mahanzavari)  
-  Email: mahanzavari@gmail.com
+If you have any questions or suggestions, feel free to reach out:
 
+- **Your Name**: [Your Email](mailto:your-email@example.com)
+- **GitHub**: [Your GitHub Profile](https://github.com/your-username)
+
+---
+
+Thank you for using this project! 🚀
+```

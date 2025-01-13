@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\ASUS\Desktop\Augemnted-ARBAB\40231027\ARBAB\build\CMakeFiles\6f17c6364ac183398ba225fabd1d6f71\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{C6551361-EDEE-37FC-9A78-51E474164BEC}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

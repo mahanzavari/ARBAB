@@ -1,65 +1,51 @@
 #include "../include/utils.h"
-#include"../include/data_structures.h"
 #include <stdlib.h>
-#include <string.h>
+#define _POSIX_C_SOURCE 200809L  // Add this line before including string.h
+#include <string.h>              // Ensure this is included in command.c
+#include <stdio.h>
+#include "../include/record.h"
 
-int parse_command(const char* command, char** tokens, int max_tokens) {
-    int token_index = 0;
-    const char* ptr = command;
-    while (token_index < max_tokens && *ptr != '\0') {
-        while (*ptr == ' ' && *ptr != '\0') ptr++;
-        if (*ptr == '"') {
-            ptr++;
-            const char* token_start = ptr;
-            while (*ptr != '"' && *ptr != '\0') ptr++;
-            if (*ptr == '"') {
-                tokens[token_index] = malloc(ptr - token_start + 1);
-                if (tokens[token_index] == NULL) {
-                    return -1;
-                }
-                strncpy((char*)tokens[token_index], (char*)token_start, ptr - token_start);
-                tokens[token_index][ptr - token_start] = '\0';
-                token_index++;
-                ptr++;
-            } else {
-                return -1;
-            }
-        } else if (*ptr != '\0') {
-            const char* token_start = ptr;
-            while (*ptr != ' ' && *ptr != '\0') ptr++;
-            int token_len = ptr - token_start;
-            tokens[token_index] = malloc(token_len + 1);
-            if (tokens[token_index] == NULL) {
-                return -1;
-            }
-            strncpy((char*)tokens[token_index], (char*)token_start, token_len);
-            tokens[token_index][token_len] = '\0';
-            token_index++;
-        }
-    }
-    return token_index;
+
+int is_valid_score(int score) {
+    return score >= 0 && score <= 20;
 }
 
-Record* merge(Record* left_half, Record* right_half, int col_index) {
+// Function to merge two sorted subarrays
+Record* merge(Record* left_half, Record* right_half, int col_index, struct Table* table) {
     if (!left_half) return right_half;
     if (!right_half) return left_half;
 
     Record* result = NULL;
 
-    if (strcmp(tables[0]->columns[col_index].type, "INTEGER") == 0) {
+    // Check the column type (INTEGER or STRING)
+    if (strcmp(table->columns[col_index].type, "INTEGER") == 0) {
+        // Compare integer values
         if (*(int*)left_half->data[col_index] <= *(int*)right_half->data[col_index]) {
             result = left_half;
-            result->next = merge(left_half->next, right_half, col_index);
+            result->next = merge(left_half->next, right_half, col_index, table);
             if (result->next) result->next->prev = result;
         } else {
             result = right_half;
-            result->next = merge(left_half, right_half->next, col_index);
+            result->next = merge(left_half, right_half->next, col_index, table);
+             if (result->next) result->next->prev = result;
+        }
+    } else if (strcmp(table->columns[col_index].type, "STRING") == 0) {
+        // Compare string values
+        if (strcmp((char*)left_half->data[col_index], (char*)right_half->data[col_index]) <= 0) {
+            result = left_half;
+            result->next = merge(left_half->next, right_half, col_index, table);
+            if (result->next) result->next->prev = result;
+        } else {
+            result = right_half;
+            result->next = merge(left_half, right_half->next, col_index, table);
             if (result->next) result->next->prev = result;
         }
     }
+
     return result;
 }
 
+// Function to split the linked list for merge sort
 Record* split(Record* head) {
     Record* fast = head;
     Record* slow = head;
@@ -72,12 +58,13 @@ Record* split(Record* head) {
     return temp;
 }
 
-Record* merge_sort(Record* head, int col_index) {
+// Main merge sort function for linked list
+Record* merge_sort(Record* head, int col_index, struct Table* table) {
     if (!head || !head->next) {
         return head;
     }
     Record* right_half = split(head);
-    Record* left_half = merge_sort(head, col_index);
-    right_half = merge_sort(right_half, col_index);
-    return merge(left_half, right_half, col_index);
+    Record* left_half = merge_sort(head, col_index, table);
+    right_half = merge_sort(right_half, col_index, table);
+    return merge(left_half, right_half, col_index, table);
 }

@@ -1,25 +1,17 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -g3
-INCLUDES = -Iinclude
+CFLAGS = -Wall -g -std=c99
+INC_DIR = include
 SRC_DIR = src
-OBJ_DIR = obj
-BIN_DIR = bin
 
 SRCS = $(wildcard $(SRC_DIR)/*.c)
-OBJS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
-TARGET = $(BIN_DIR)/ARBAB_Database
+OBJS = $(SRCS:.c=.o)
+EXEC = database
 
-all: $(TARGET)
+$(EXEC): $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $^
 
-$(TARGET): $(OBJS)
-	@mkdir -p $(BIN_DIR)
-	$(CC) $(CFLAGS) $(OBJS) -o $(TARGET)
-
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	@mkdir -p $(OBJ_DIR)
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+$(SRC_DIR)/%.o: $(SRC_DIR)/%.c
+	$(CC) $(CFLAGS) -I$(INC_DIR) -c -o $@ $<
 
 clean:
-	rm -rf $(OBJ_DIR) $(BIN_DIR)
-
-.PHONY: all clean
+	rm -f $(OBJS) $(EXEC)

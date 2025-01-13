@@ -1,6 +1,7 @@
 #include "../include/rbtree.h"
-#include <stdlib.h>
+#include "../include/record.h"  // Include record.h for Record type
 #include <stdio.h>
+#include <stdlib.h>
 
 RBTreeNode* rbt_create_node(int student_number, Record* record) {
     RBTreeNode* node = (RBTreeNode*)malloc(sizeof(RBTreeNode));
@@ -13,7 +14,7 @@ RBTreeNode* rbt_create_node(int student_number, Record* record) {
     node->parent = NULL;
     node->left = NULL;
     node->right = NULL;
-    node->color = 'R';
+    node->color = 'R'; // New nodes are always red
     return node;
 }
 
@@ -77,7 +78,7 @@ void rbt_insert_fixup(RBTreeNode** root, RBTreeNode* z) {
             }
         }
     }
-    (*root)->color = 'B';
+    (*root)->color = 'B'; // Root is always black
 }
 
 void rbt_left_rotate(RBTreeNode** root, RBTreeNode* x) {
@@ -151,7 +152,7 @@ RBTreeNode* rbt_transplant(RBTreeNode** root, RBTreeNode* u, RBTreeNode* v) {
 RBTreeNode* rbt_delete(RBTreeNode** root, int student_number) {
     RBTreeNode* z = rbt_search(*root, student_number);
     if (z == NULL) {
-        return *root;
+        return *root; // Node not found
     }
 
     RBTreeNode* y = z;
@@ -216,7 +217,7 @@ void rbt_delete_fixup(RBTreeNode** root, RBTreeNode* x) {
                     rbt_left_rotate(root, x->parent);
                     x = *root;
                 } else {
-                    break;
+                    break; // Handle the case where w is NULL
                 }
             }
         } else {
@@ -244,7 +245,7 @@ void rbt_delete_fixup(RBTreeNode** root, RBTreeNode* x) {
                     rbt_right_rotate(root, x->parent);
                     x = *root;
                 } else {
-                    break;
+                    break; // Handle the case where w is NULL
                 }
             }
         }
