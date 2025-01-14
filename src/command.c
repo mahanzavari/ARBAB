@@ -1,9 +1,9 @@
 #include "../include/command.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>              // Ensure this is included in command.c
+#include <string.h>              
 #include "../include/table.h"
-#include "../include/record.h"  // Include record.h for Record type
+#include "../include/record.h"  
 #include "../include/rbtree.h"
 #include "../include/utils.h"
 #include "../include/hashmap.h"
@@ -11,44 +11,65 @@
 // CREATE TABLE <table_name>
 void create_table_cmd(const char* command) {
     char table_name[MAX_TABLE_NAME_LENGTH];
-    if (sscanf(command, "CREATE TABLE %s", table_name) == 1) {
-        if (find_table(table_name) != NULL) {
-            printf("Error: Table '%s' already exists.\n", table_name);
+    int num_columns;
+
+    // Parse the command to get table name and number of columns
+    if (sscanf(command, "CREATE TABLE %s %d", table_name, &num_columns) != 2) {
+        printf("Invalid CREATE TABLE command. Usage: CREATE TABLE <table_name> <num_columns>\n");
+        return;
+    }
+
+    if (find_table(table_name) != NULL) {
+        printf("Error: Table '%s' already exists.\n", table_name);
+        return;
+    }
+
+    // Allocate memory for the table
+    Table* new_table = (Table*)malloc(sizeof(Table));
+    if (!new_table) {
+        perror("Memory allocation failed");
+        exit(EXIT_FAILURE);
+    }
+    strcpy(new_table->name, table_name);
+    new_table->num_columns = num_columns;
+
+    // Allocate memory for the columns
+    new_table->columns = (ColumnDef*)malloc(num_columns * sizeof(ColumnDef));
+    if (!new_table->columns) {
+        perror("Memory allocation failed");
+        free(new_table);
+        exit(EXIT_FAILURE);
+    }
+
+    // Get column names and types from the user
+    for (int i = 0; i < num_columns; i++) {
+        char column_name[MAX_COLUMN_NAME_LENGTH];
+        char column_type[10];
+
+        printf("Enter column %d name: ", i + 1);
+        scanf("%s", column_name);
+        printf("Enter column %d type (INTEGER or STRING): ", i + 1);
+        scanf("%s", column_type);
+
+        if (strcmp(column_type, "INTEGER") != 0 && strcmp(column_type, "STRING") != 0) {
+            printf("Error: Invalid column type. Use 'INTEGER' or 'STRING'.\n");
+            free(new_table->columns);
+            free(new_table);
             return;
         }
 
-        Table* new_table = (Table*)malloc(sizeof(Table));
-        if (!new_table) {
-            perror("Memory allocation failed");
-            exit(EXIT_FAILURE);
-        }
-        strcpy(new_table->name, table_name);
-        new_table->num_columns = 7; // Fixed columns
-        strcpy(new_table->columns[0].name, "student-number");
-        strcpy(new_table->columns[0].type, "INTEGER");
-        strcpy(new_table->columns[1].name, "general-course-name");
-        strcpy(new_table->columns[1].type, "STRING");
-        strcpy(new_table->columns[2].name, "general-course-instructor");
-        strcpy(new_table->columns[2].type, "STRING");
-        strcpy(new_table->columns[3].name, "general-course-score");
-        strcpy(new_table->columns[3].type, "INTEGER");
-        strcpy(new_table->columns[4].name, "core-course-name");
-        strcpy(new_table->columns[4].type, "STRING");
-        strcpy(new_table->columns[5].name, "core-course-instructor");
-        strcpy(new_table->columns[5].type, "STRING");
-        strcpy(new_table->columns[6].name, "core-course-score");
-        strcpy(new_table->columns[6].type, "INTEGER");
-        new_table->head = NULL;
-        new_table->tail = NULL;
-        new_table->index_root = NULL;
-
-        // Insert the new table into the hashmap
-        extern HashMap hashmap;
-        hashmap_insert(&hashmap, table_name, new_table);
-        printf("Table '%s' created successfully.\n", table_name);
-    } else {
-        printf("Invalid CREATE TABLE command.\n");
+        strcpy(new_table->columns[i].name, column_name);
+        strcpy(new_table->columns[i].type, column_type);
     }
+
+    new_table->head = NULL;
+    new_table->tail = NULL;
+    new_table->index_root = NULL;
+
+    // Insert the new table into the hashmap
+    extern HashMap hashmap;
+    hashmap_insert(&hashmap, table_name, new_table);
+    printf("Table '%s' created successfully with %d columns.\n", table_name, num_columns);
 }
 // DELETE TABLE <table_name>
 void delete_table_cmd(const char* command) {
@@ -71,6 +92,9 @@ void delete_table_cmd(const char* command) {
         // Free the Red-Black Tree index
         rbt_free_tree(table->index_root);
 
+        // Free the columns array
+        free(table->columns);
+
         // Remove the table from the hashmap
         extern HashMap hashmap;
         hashmap_remove(&hashmap, table_name);
@@ -82,7 +106,6 @@ void delete_table_cmd(const char* command) {
         printf("Invalid DELETE TABLE command.\n");
     }
 }
-
 
 // CREATE INDEX <table_name>
 void create_index_cmd(const char* command) {
@@ -158,19 +181,17 @@ void add_record_cmd(const char* command) {
     char* tokens[50]; // Array to hold tokens (column names and values)
     int num_tokens = 0;
 
-    // Step 1: Parse the command into tokens
+    // Parse the command into tokens
     char* rest = (char*)command;
     char* token;
-    
-    // Include necessary headers:
-    
+
     // Skip the "ADD" command
     token = strtok_s(rest, " ", &rest);
     if (token == NULL || strcmp(token, "ADD") != 0) {
         printf("Invalid ADD command.\n");
         return;
     }
-    
+
     // Extract the table name
     token = strtok_s(rest, " ", &rest);
     if (token == NULL) {
@@ -184,90 +205,39 @@ void add_record_cmd(const char* command) {
         tokens[num_tokens++] = token;
     }
 
-    // Step 2: Validate the number of tokens
-    if (num_tokens % 2 != 0) {
-        printf("Error: Incorrect number of column-value pairs.\n");
-        return;
-    }
-
-    // Step 3: Find the table
+    // Validate the number of tokens
     Table* table = find_table(table_name);
     if (table == NULL) {
         printf("Error: Table '%s' not found.\n", table_name);
         return;
     }
 
-    // Step 4: Extract column-value pairs
-    char* col_names[MAX_COLUMNS];
-    char* values[MAX_COLUMNS];
-    int col_index = 0;
-    int value_index = 0;
-
-    for (int i = 0; i < num_tokens; i += 2) {
-        col_names[col_index++] = tokens[i];
-        values[value_index++] = tokens[i + 1];
-    }
-
-    // Step 5: Map values to the correct column order
-    char* ordered_values[MAX_COLUMNS];
-    for (int i = 0; i < table->num_columns; i++) {
-        ordered_values[i] = NULL;
-    }
-
-    for (int i = 0; i < col_index; i++) {
-        int col_idx = find_column_index(table, col_names[i]);
-        if (col_idx != -1) {
-            ordered_values[col_idx] = values[i];
-        } else {
-            printf("Error: Column '%s' not found in table '%s'.\n", col_names[i], table_name);
-            return;
-        }
-    }
-
-    // Step 6: Check if all values are provided
-    for (int i = 0; i < table->num_columns; i++) {
-        if (ordered_values[i] == NULL) {
-            printf("Error: Missing value for column '%s'.\n", table->columns[i].name);
-            return;
-        }
-    }
-
-    // Step 7: Validate general-course-score and core-course-score values
-    int general_score = atoi(ordered_values[3]); // general-course-score is at index 3
-    int core_score = atoi(ordered_values[6]);    // core-course-score is at index 6
-
-    if (!is_valid_score(general_score)) {
-        printf("Warning: The entered value for general-course-score (%d) is not in the right range (0 to 20).\n", general_score);
-        printf("Use 'HELP' for more information.\n");
+    if (num_tokens != table->num_columns * 2) {
+        printf("Error: Incorrect number of column-value pairs. Expected %d pairs.\n", table->num_columns);
         return;
     }
 
-    if (!is_valid_score(core_score)) {
-        printf("Warning: The entered value for core-course-score (%d) is not in the right range (0 to 20).\n", core_score);
-        printf("Use 'HELP' for more information.\n");
+    // Dynamically allocate memory for ordered_values
+    char** ordered_values = (char**)malloc(table->num_columns * sizeof(char*));
+    if (!ordered_values) {
+        perror("Memory allocation failed");
         return;
     }
 
-    // Step 8: Create a new record
+    // Extract column-value pairs
+    for (int i = 0; i < table->num_columns; i++) {
+        ordered_values[i] = tokens[i * 2 + 1]; // Values are at odd indices
+    }
+
+    // Create a new record
     Record* new_record = create_record(table, ordered_values);
     if (new_record == NULL) {
         printf("Error: Failed to create record.\n");
+        free(ordered_values); // Free allocated memory
         return;
     }
 
-    // Step 9: Check for duplicate primary key (student-number)
-    int student_number = atoi(ordered_values[0]);
-    Record* current = table->head;
-    while (current != NULL) {
-        if (*(int*)current->data[0] == student_number) {
-            printf("Error: Duplicate student number '%d'.\n", student_number);
-            free_record_data(table, new_record);
-            return;
-        }
-        current = current->next;
-    }
-
-    // Step 10: Add the record to the linked list
+    // Add the record to the linked list
     if (table->head == NULL) {
         table->head = new_record;
         table->tail = new_record;
@@ -277,14 +247,17 @@ void add_record_cmd(const char* command) {
         table->head = new_record;
     }
 
-    // Step 11: Update the Red-Black Tree index (if applicable)
+    // Update the Red-Black Tree index (if applicable)
     if (table->index_root != NULL) {
+        int student_number = atoi(ordered_values[0]); // Assuming first column is student-number
         table->index_root = rbt_insert(table->index_root, student_number, new_record);
     }
 
     printf("Record added to table '%s'.\n", table_name);
-}
 
+    // Free the dynamically allocated memory
+    free(ordered_values);
+}
 // DELETE <table_name> <column_name> <value>
 void delete_record_cmd(const char* command) {
     char table_name[MAX_TABLE_NAME_LENGTH];
@@ -474,10 +447,10 @@ void select_records_cmd(const char* command) {
         }
 
         // Step 4: Free the temporary linked list of matching records
-         Record* temp = matching_records_head;
+        Record* temp = matching_records_head;
         while (temp != NULL) {
             Record* next = temp->next;
-             free(temp);
+            free(temp);
             temp = next;
         }
 
@@ -488,38 +461,51 @@ void select_records_cmd(const char* command) {
 void help() {
     printf("\nAvailable Commands:\n");
     printf("-------------------\n");
-    printf("1. CREATE TABLE <table_name>\n");
-    printf("   - Creates a new table with the specified name.\n");
-    printf("   - Example: CREATE TABLE students\n\n");
 
+    // CREATE TABLE command
+    printf("1. CREATE TABLE <table_name> <num_columns>\n");
+    printf("   - Creates a new table with the specified name and number of columns.\n");
+    printf("   - After entering this command, you will be prompted to define the column names and types.\n");
+    printf("   - Example: CREATE TABLE students 3\n");
+    printf("     (You will then be prompted to enter column names and types for 3 columns.)\n\n");
+
+    // DELETE TABLE command
     printf("2. DELETE TABLE <table_name>\n");
     printf("   - Deletes the specified table and all its records.\n");
     printf("   - Example: DELETE TABLE students\n\n");
 
+    // CREATE INDEX command
     printf("3. CREATE INDEX <table_name>\n");
     printf("   - Creates an index on the student-number column for the specified table.\n");
     printf("   - Example: CREATE INDEX students\n\n");
 
+    // ADD command
     printf("4. ADD <table_name> <column_name_1> <value_1> ... <column_name_n> <value_n>\n");
     printf("   - Adds a new record to the specified table.\n");
-    printf("   - Example: ADD students student-number 12 general-course-name \"DSA\" general-course-instructor \"Dr.ARBAB\" general-course-score 85 core-course-name \"Physics\" core-course-instructor \"Dr.zeinali\" core-course-score 90\n\n");
+    printf("   - You must provide values for all columns in the table.\n");
+    printf("   - Example: ADD students student-number 123 name \"John Doe\" score 85\n\n");
 
+    // DELETE command
     printf("5. DELETE <table_name> <column_name> <value>\n");
     printf("   - Deletes records from the specified table where the column matches the value.\n");
-    printf("   - Example: DELETE students student-number 12\n\n");
+    printf("   - Example: DELETE students student-number 123\n\n");
 
+    // UPDATE command
     printf("6. UPDATE <table_name> <column_name> <old_value> <new_value>\n");
     printf("   - Updates records in the specified table where the column matches the old value.\n");
-    printf("   - Example: UPDATE students core-course-score 90 95\n\n");
+    printf("   - Example: UPDATE students score 85 90\n\n");
 
+    // SELECT command
     printf("7. SELECT <table_name> <column_name> <value> [SORTED]\n");
     printf("   - Selects records from the specified table where the column matches the value.\n");
     printf("   - Use the optional SORTED keyword to sort the results by student-number.\n");
-    printf("   - Example: SELECT students core-course-score 90 SORTED\n\n");
+    printf("   - Example: SELECT students score 85 SORTED\n\n");
 
+    // HELP command
     printf("8. HELP\n");
     printf("   - Displays this help message.\n\n");
 
+    // EXIT command
     printf("9. EXIT\n");
     printf("   - Exits the program.\n\n");
 }

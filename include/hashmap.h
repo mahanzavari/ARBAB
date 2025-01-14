@@ -1,7 +1,7 @@
 #ifndef HASHMAP_H
 #define HASHMAP_H
-#include "table.h"
 
+#include "table.h"
 
 #define HASHMAP_SIZE 10
 
@@ -14,6 +14,8 @@ typedef struct HashMapNode {
 typedef struct {
     HashMapNode* buckets[HASHMAP_SIZE]; // Array of linked lists
 } HashMap;
+
+// Function prototypes
 unsigned int hash(const char* key);
 void hashmap_insert(HashMap* hashmap, const char* key, Table* table);
 Table* hashmap_lookup(HashMap* hashmap, const char* key);
