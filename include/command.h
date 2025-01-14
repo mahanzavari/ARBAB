@@ -15,6 +15,13 @@ void add_record_cmd(const char* command);
 void delete_record_cmd(const char* command);
 void update_record_cmd(const char* command);
 void select_records_cmd(const char* command);
+void select_records_where_cmd(const char* command);
+// concurrency
+void begin_transaction();
+void commit_transaction();
+void rollback_transaction();
+void load_cmd(const char* command);
+void save_cmd(const char* command);
 void help();
 int parse_command(const char* command, char** tokens, int max_tokens);
 
