@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\ASUS\Desktop\Augemnted-ARBAB\40231027\AUG_ARBAB\kir\ARBAB\build\CMakeFiles\057a768b126d69feaf106351325d76da\check.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\ASUS\Desktop\Augemnted-ARBAB\40231027\AUG_ARBAB\kir\ARBAB\include\cJSON\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="C:\Users\ASUS\Desktop\Augemnted-ARBAB\40231027\AUG_ARBAB\kir\ARBAB\build\include\cJSON\CMakeFiles\check" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{8CE8D37F-E95A-3BD8-AF7D-432C8185AA6E}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

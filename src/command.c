@@ -7,6 +7,7 @@
 #include "../include/rbtree.h"
 #include "../include/utils.h"
 #include "../include/hashmap.h"
+#include"../include/file_io.h"
 
 // CREATE TABLE <table_name>
 void create_table_cmd(const char* command) {
@@ -372,16 +373,26 @@ void select_records_cmd(const char* command) {
     char column_name[MAX_COLUMN_NAME_LENGTH];
     char value[MAX_STRING_LENGTH];
     char sorted[10] = "";
-    if (sscanf(command, "SELECT %s %s %s %s", table_name, column_name, value, sorted) >= 3) {
+    char condition[10] = ""; // New: To handle conditions like AND, OR, NOT
+    char second_column_name[MAX_COLUMN_NAME_LENGTH];
+    char second_value[MAX_STRING_LENGTH];
+
+    // Parse the command
+    if (sscanf(command, "SELECT %s %s %s %s %s %s %s", table_name, column_name, value, condition, second_column_name, second_value, sorted) >= 3) {
         Table* table = find_table(table_name);
         if (table == NULL) {
             printf("Error: Table '%s' not found.\n", table_name);
             return;
         }
+
         int col_index = find_column_index(table, column_name);
-        if (col_index == -1) {
-            printf("Error: Column '%s' not found in table '%s'.\n", column_name, table_name);
-            return;
+        int second_col_index = -1;
+        if (strlen(condition) > 0) {
+            second_col_index = find_column_index(table, second_column_name);
+            if (second_col_index == -1) {
+                printf("Error: Column '%s' not found in table '%s'.\n", second_column_name, table_name);
+                return;
+            }
         }
 
         Record* matching_records_head = NULL;
@@ -398,6 +409,28 @@ void select_records_cmd(const char* command) {
             } else if (strcmp(table->columns[col_index].type, "STRING") == 0) {
                 if (strcmp(value, (char*)current->data[col_index]) == 0) {
                     match = 1;
+                }
+            }
+
+            // Handle AND, OR, NOT conditions
+            if (strlen(condition) > 0) {
+                int second_match = 0;
+                if (strcmp(table->columns[second_col_index].type, "INTEGER") == 0) {
+                    if (atoi(second_value) == *(int*)current->data[second_col_index]) {
+                        second_match = 1;
+                    }
+                } else if (strcmp(table->columns[second_col_index].type, "STRING") == 0) {
+                    if (strcmp(second_value, (char*)current->data[second_col_index]) == 0) {
+                        second_match = 1;
+                    }
+                }
+
+                if (strcmp(condition, "AND") == 0) {
+                    match = match && second_match;
+                } else if (strcmp(condition, "OR") == 0) {
+                    match = match || second_match;
+                } else if (strcmp(condition, "NOT") == 0) {
+                    match = match && !second_match;
                 }
             }
 
@@ -427,7 +460,6 @@ void select_records_cmd(const char* command) {
 
         // Step 2: Sort the records by student-number if SORTED is specified
         if (strcmp(sorted, "SORTED") == 0) {
-            // Sort by student-number (column index 0)
             matching_records_head = merge_sort(matching_records_head, 0, table);
         }
 
@@ -458,6 +490,57 @@ void select_records_cmd(const char* command) {
         printf("Invalid SELECT command.\n");
     }
 }
+
+void save_cmd(const char* command) {
+    char table_name[MAX_TABLE_NAME_LENGTH];
+    char filename[256];
+    char format[10];
+    if (sscanf(command, "SAVE %s %s %s", table_name, filename, format) == 3) {
+        Table* table = find_table(table_name);
+        if (!table) {
+            printf("Error: Table '%s' not found.\n", table_name);
+            return;
+        }
+
+        if (strcmp(format, "CSV") == 0) {
+            save_to_csv(filename, table);
+        } else if (strcmp(format, "JSON") == 0) {
+            save_to_json(filename, table);
+        } else if (strcmp(format, "EXCEL") == 0) {
+            save_to_excel(filename, table);
+        } else {
+            printf("Error: Unsupported format. Use CSV, JSON, or EXCEL.\n");
+        }
+    } else {
+        printf("Invalid SAVE command. Usage: SAVE <table_name> <filename> <format>\n");
+    }
+}
+
+void load_cmd(const char* command) {
+    char table_name[MAX_TABLE_NAME_LENGTH];
+    char filename[256];
+    char format[10];
+    if (sscanf(command, "LOAD %s %s %s", table_name, filename, format) == 3) {
+        Table* table = find_table(table_name);
+        if (!table) {
+            printf("Error: Table '%s' not found.\n", table_name);
+            return;
+        }
+
+        if (strcmp(format, "CSV") == 0) {
+            load_from_csv(filename, table);
+        } else if (strcmp(format, "JSON") == 0) {
+            load_from_json(filename, table);
+        } else if (strcmp(format, "EXCEL") == 0) {
+            load_from_excel(filename, table);
+        } else {
+            printf("Error: Unsupported format. Use CSV, JSON, or EXCEL.\n");
+        }
+    } else {
+        printf("Invalid LOAD command. Usage: LOAD <table_name> <filename> <format>\n");
+    }
+}
+
 void help() {
     printf("\nAvailable Commands:\n");
     printf("-------------------\n");
@@ -465,47 +548,55 @@ void help() {
     // CREATE TABLE command
     printf("1. CREATE TABLE <table_name> <num_columns>\n");
     printf("   - Creates a new table with the specified name and number of columns.\n");
-    printf("   - After entering this command, you will be prompted to define the column names and types.\n");
-    printf("   - Example: CREATE TABLE students 3\n");
-    printf("     (You will then be prompted to enter column names and types for 3 columns.)\n\n");
+    printf("   - After entering this command, you will be prompted to define the column names, types, and constraints.\n");
+    printf("   - Example: CREATE TABLE students 3\n\n");
 
     // DELETE TABLE command
     printf("2. DELETE TABLE <table_name>\n");
     printf("   - Deletes the specified table and all its records.\n");
     printf("   - Example: DELETE TABLE students\n\n");
 
-    // CREATE INDEX command
-    printf("3. CREATE INDEX <table_name>\n");
-    printf("   - Creates an index on the student-number column for the specified table.\n");
-    printf("   - Example: CREATE INDEX students\n\n");
-
     // ADD command
-    printf("4. ADD <table_name> <column_name_1> <value_1> ... <column_name_n> <value_n>\n");
+    printf("3. ADD <table_name> <column_name_1> <value_1> ... <column_name_n> <value_n>\n");
     printf("   - Adds a new record to the specified table.\n");
     printf("   - You must provide values for all columns in the table.\n");
     printf("   - Example: ADD students student-number 123 name \"John Doe\" score 85\n\n");
 
-    // DELETE command
-    printf("5. DELETE <table_name> <column_name> <value>\n");
-    printf("   - Deletes records from the specified table where the column matches the value.\n");
-    printf("   - Example: DELETE students student-number 123\n\n");
+    // SELECT command
+    printf("4. SELECT <table_name> <column_name> <value> [AND|OR|NOT <second_column_name> <second_value>] [SORTED]\n");
+    printf("   - Selects records from the specified table where the column matches the value.\n");
+    printf("   - Use AND, OR, or NOT to combine multiple conditions.\n");
+    printf("   - Use the optional SORTED keyword to sort the results by student-number.\n");
+    printf("   - Examples:\n");
+    printf("     - SELECT students score 85\n");
+    printf("     - SELECT students score 85 AND name \"John Doe\"\n");
+    printf("     - SELECT students score 85 OR score 90 SORTED\n\n");
 
     // UPDATE command
-    printf("6. UPDATE <table_name> <column_name> <old_value> <new_value>\n");
+    printf("5. UPDATE <table_name> <column_name> <old_value> <new_value>\n");
     printf("   - Updates records in the specified table where the column matches the old value.\n");
     printf("   - Example: UPDATE students score 85 90\n\n");
 
-    // SELECT command
-    printf("7. SELECT <table_name> <column_name> <value> [SORTED]\n");
-    printf("   - Selects records from the specified table where the column matches the value.\n");
-    printf("   - Use the optional SORTED keyword to sort the results by student-number.\n");
-    printf("   - Example: SELECT students score 85 SORTED\n\n");
+    // DELETE command
+    printf("6. DELETE <table_name> <column_name> <value>\n");
+    printf("   - Deletes records from the specified table where the column matches the value.\n");
+    printf("   - Example: DELETE students student-number 123\n\n");
+
+    // SAVE command
+    printf("7. SAVE <table_name> <filename> <format>\n");
+    printf("   - Saves the specified table to a file in the given format (CSV, JSON, or EXCEL).\n");
+    printf("   - Example: SAVE students data.csv CSV\n\n");
+
+    // LOAD command
+    printf("8. LOAD <table_name> <filename> <format>\n");
+    printf("   - Loads the specified table from a file in the given format (CSV, JSON, or EXCEL).\n");
+    printf("   - Example: LOAD students data.csv CSV\n\n");
 
     // HELP command
-    printf("8. HELP\n");
+    printf("9. HELP\n");
     printf("   - Displays this help message.\n\n");
 
     // EXIT command
-    printf("9. EXIT\n");
+    printf("10. EXIT\n");
     printf("   - Exits the program.\n\n");
 }

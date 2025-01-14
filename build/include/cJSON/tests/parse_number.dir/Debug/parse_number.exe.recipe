@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ProjectOutputs>
+    <ProjectOutput>
+      <FullPath>C:\Users\ASUS\Desktop\Augemnted-ARBAB\40231027\AUG_ARBAB\kir\ARBAB\build\x64\Debug\ZERO_CHECK</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>C:\Users\ASUS\Desktop\Augemnted-ARBAB\40231027\AUG_ARBAB\kir\ARBAB\build\include\cJSON\Debug\cjson.dll</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>C:\Users\ASUS\Desktop\Augemnted-ARBAB\40231027\AUG_ARBAB\kir\ARBAB\build\include\cJSON\tests\Debug\parse_number.exe</FullPath>
+    </ProjectOutput>
+  </ProjectOutputs>
+  <ContentFiles />
+  <SatelliteDlls />
+  <NonRecipeFileRefs />
+</Project>

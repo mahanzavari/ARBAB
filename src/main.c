@@ -6,12 +6,24 @@
 #include "../include/hashmap.h"
 #include "../include/table.h"
 #include "../include/record.h"  // Include record.h for Record type
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../include/command.h"
+#include "../include/hashmap.h"
+#include "../include/table.h"
+#include "../include/record.h"
+#include "../include/file_io.h"  // New: Include file_io.h
+
 int main() {
     char command[256];
     extern HashMap hashmap;
-    for(int i = 0; i < HASHMAP_SIZE; i++) {
+    for (int i = 0; i < HASHMAP_SIZE; i++) {
         hashmap.buckets[i] = NULL;
     }
+
     while (1) {
         printf("Enter command: ");
         fgets(command, sizeof(command), stdin);
@@ -21,19 +33,21 @@ int main() {
             create_table_cmd(command);
         } else if (strncmp(command, "DELETE TABLE", 12) == 0) {
             delete_table_cmd(command);
-        } else if (strncmp(command, "CREATE INDEX", 12) == 0) {
-            create_index_cmd(command);
         } else if (strncmp(command, "ADD", 3) == 0) {
             add_record_cmd(command);
-        } else if (strncmp(command, "DELETE", 6) == 0) {
-            delete_record_cmd(command);
-        } else if (strncmp(command, "UPDATE", 6) == 0) {
-            update_record_cmd(command);
         } else if (strncmp(command, "SELECT", 6) == 0) {
             select_records_cmd(command);
+        } else if (strncmp(command, "UPDATE", 6) == 0) {
+            update_record_cmd(command);
+        } else if (strncmp(command, "DELETE", 6) == 0) {
+            delete_record_cmd(command);
+        } else if (strncmp(command, "SAVE", 4) == 0) {
+            save_cmd(command);
+        } else if (strncmp(command, "LOAD", 4) == 0) {
+            load_cmd(command);
         } else if (strcmp(command, "HELP") == 0) {
             help();
-        } else if (strcmp(command, "exit") == 0) {
+        } else if (strcmp(command, "EXIT") == 0) {
             break;
         } else {
             printf("Invalid command. Type 'HELP' for a list of commands.\n");

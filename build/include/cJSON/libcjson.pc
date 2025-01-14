@@ -1,0 +1,10 @@
+libdir=C:/Program Files (x86)/SimpleDatabase/lib
+includedir=C:/Program Files (x86)/SimpleDatabase/include
+
+Name: libcjson
+Version: 1.7.18
+Description: Ultralightweight JSON parser in ANSI C
+URL: https://github.com/DaveGamble/cJSON
+Libs: -L${libdir} -lcjson
+Libs.private: -lm
+Cflags: -I${includedir} -I${includedir}/cjson

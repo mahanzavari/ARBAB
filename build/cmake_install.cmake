@@ -1,8 +1,8 @@
-# Install script for directory: C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUG_ARBAB
+# Install script for directory: C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUG_ARBAB/kir/ARBAB
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/database")
+  set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/SimpleDatabase")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -32,10 +32,40 @@ if(NOT DEFINED CMAKE_CROSSCOMPILING)
   set(CMAKE_CROSSCOMPILING "FALSE")
 endif()
 
+if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
+  if(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Dd][Ee][Bb][Uu][Gg])$")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE EXECUTABLE FILES "C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUG_ARBAB/kir/ARBAB/build/Debug/SimpleDatabase.exe")
+  elseif(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Rr][Ee][Ll][Ee][Aa][Ss][Ee])$")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE EXECUTABLE FILES "C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUG_ARBAB/kir/ARBAB/build/Release/SimpleDatabase.exe")
+  elseif(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Mm][Ii][Nn][Ss][Ii][Zz][Ee][Rr][Ee][Ll])$")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE EXECUTABLE FILES "C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUG_ARBAB/kir/ARBAB/build/MinSizeRel/SimpleDatabase.exe")
+  elseif(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Rr][Ee][Ll][Ww][Ii][Tt][Hh][Dd][Ee][Bb][Ii][Nn][Ff][Oo])$")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE EXECUTABLE FILES "C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUG_ARBAB/kir/ARBAB/build/RelWithDebInfo/SimpleDatabase.exe")
+  endif()
+endif()
+
+if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
+  if(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Dd][Ee][Bb][Uu][Gg])$")
+    include("C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUG_ARBAB/kir/ARBAB/build/CMakeFiles/SimpleDatabase.dir/install-cxx-module-bmi-Debug.cmake" OPTIONAL)
+  elseif(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Rr][Ee][Ll][Ee][Aa][Ss][Ee])$")
+    include("C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUG_ARBAB/kir/ARBAB/build/CMakeFiles/SimpleDatabase.dir/install-cxx-module-bmi-Release.cmake" OPTIONAL)
+  elseif(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Mm][Ii][Nn][Ss][Ii][Zz][Ee][Rr][Ee][Ll])$")
+    include("C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUG_ARBAB/kir/ARBAB/build/CMakeFiles/SimpleDatabase.dir/install-cxx-module-bmi-MinSizeRel.cmake" OPTIONAL)
+  elseif(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Rr][Ee][Ll][Ww][Ii][Tt][Hh][Dd][Ee][Bb][Ii][Nn][Ff][Oo])$")
+    include("C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUG_ARBAB/kir/ARBAB/build/CMakeFiles/SimpleDatabase.dir/install-cxx-module-bmi-RelWithDebInfo.cmake" OPTIONAL)
+  endif()
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for each subdirectory.
+  include("C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUG_ARBAB/kir/ARBAB/build/include/cJSON/cmake_install.cmake")
+
+endif()
+
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUG_ARBAB/build/install_local_manifest.txt"
+  file(WRITE "C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUG_ARBAB/kir/ARBAB/build/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()
 if(CMAKE_INSTALL_COMPONENT)
@@ -51,6 +81,6 @@ else()
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUG_ARBAB/build/${CMAKE_INSTALL_MANIFEST}"
+  file(WRITE "C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUG_ARBAB/kir/ARBAB/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()

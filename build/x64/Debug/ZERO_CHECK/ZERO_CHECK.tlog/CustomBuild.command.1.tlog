@@ -1,6 +1,6 @@
-^C:\USERS\ASUS\DESKTOP\AUGEMNTED-ARBAB\40231027\AUG_ARBAB\BUILD\CMAKEFILES\113B053C19631056187FE28B071FCA8E\GENERATE.STAMP.RULE
+^C:\USERS\ASUS\DESKTOP\AUGEMNTED-ARBAB\40231027\AUG_ARBAB\KIR\ARBAB\BUILD\CMAKEFILES\30B4519C8729FF8E52F2360616E1F7FC\GENERATE.STAMP.RULE
 setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUG_ARBAB -BC:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUG_ARBAB/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUG_ARBAB/build/database.sln
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUG_ARBAB/kir/ARBAB -BC:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUG_ARBAB/kir/ARBAB/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUG_ARBAB/kir/ARBAB/build/SimpleDatabase.sln
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
