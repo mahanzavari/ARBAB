@@ -12,6 +12,7 @@ Record* create_record(struct Table* table, char** values) {
     }
     new_record->next = NULL;
     new_record->prev = NULL;
+
     for (int i = 0; i < table->num_columns; i++) {
         if (strcmp(table->columns[i].type, "INTEGER") == 0) {
             new_record->data[i] = malloc(sizeof(int));
@@ -23,7 +24,6 @@ Record* create_record(struct Table* table, char** values) {
     }
     return new_record;
 }
-
 void free_record_data(struct Table* table, Record* record) {
     for (int i = 0; i < table->num_columns; i++) {
         free(record->data[i]);

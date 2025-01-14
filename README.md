@@ -1,6 +1,4 @@
-# ARBAB
-
-## Database Management System (DBMS) Project
+# Database Management System (DBMS) Project
 
 This project is a simple Database Management System (DBMS) implemented in C. It supports basic database operations such as creating tables, adding records, deleting records, updating records, and querying data. The system also includes indexing using a Red-Black Tree for efficient data retrieval.
 
@@ -228,10 +226,10 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 If you have any questions or suggestions, feel free to reach out:
 
-- **Your Name**: [Your Email](mailto:mahanzavari@gmail.com)
-- **GitHub**: [Your GitHub Profile](https://github.com/mahanzavari)
+- **Your Name**: [Your Email](mailto:your-email@example.com)
+- **GitHub**: [Your GitHub Profile](https://github.com/your-username)
 
 ---
 
-Thank you for using my naive database! 🚀
-
+Thank you for using this project! 🚀
+```

@@ -1,6 +1,6 @@
-^C:\USERS\ASUS\DESKTOP\AUGEMNTED-ARBAB\40231027\ARBAB\CMAKELISTS.TXT
+^C:\USERS\ASUS\DESKTOP\AUGEMNTED-ARBAB\40231027\AUGMENTED_ARBAB\CMAKELISTS.TXT
 setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/ARBAB -BC:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/ARBAB/build --check-stamp-file C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/ARBAB/build/CMakeFiles/generate.stamp
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB -BC:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build --check-stamp-file C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/CMakeFiles/generate.stamp
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
