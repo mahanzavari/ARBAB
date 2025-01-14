@@ -17,5 +17,6 @@ void update_record_cmd(const char* command);
 void select_records_cmd(const char* command);
 void help();
 int parse_command(const char* command, char** tokens, int max_tokens);
-
+void save_cmd(const char* command);
+void load_cmd(const char* command);
 #endif
