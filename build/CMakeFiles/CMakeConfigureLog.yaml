@@ -5,7 +5,7 @@ events:
     kind: "message-v1"
     backtrace:
       - "C:/Program Files/CMake/share/cmake-3.31/Modules/CMakeDetermineSystem.cmake:205 (message)"
-      - "CMakeLists.txt:2 (project)"
+      - "CMakeLists.txt:5 (project)"
     message: |
       The system is: Windows - 10.0.22631 - AMD64
   -
@@ -14,7 +14,7 @@ events:
       - "C:/Program Files/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
       - "C:/Program Files/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
       - "C:/Program Files/CMake/share/cmake-3.31/Modules/CMakeDetermineCCompiler.cmake:123 (CMAKE_DETERMINE_COMPILER_ID)"
-      - "CMakeLists.txt:2 (project)"
+      - "CMakeLists.txt:5 (project)"
     message: |
       Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
       Compiler:  
@@ -24,7 +24,7 @@ events:
       The output was:
       0
       MSBuild version 17.10.4+10fbfbf2e for .NET Framework
-      Build started 1/14/2025 11:23:50 PM.
+      Build started 1/15/2025 8:55:30 PM.
       
       Project "C:\\Users\\ASUS\\Desktop\\Augemnted-ARBAB\\40231027\\AUGMENTED_ARBAB\\build\\CMakeFiles\\3.31.4\\CompilerIdC\\CompilerIdC.vcxproj" on node 1 (default targets).
       PrepareForBuild:
@@ -53,7 +53,7 @@ events:
           0 Warning(s)
           0 Error(s)
       
-      Time Elapsed 00:00:00.65
+      Time Elapsed 00:00:00.42
       
       
       Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.exe"
@@ -68,12 +68,12 @@ events:
     backtrace:
       - "C:/Program Files/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake:74 (try_compile)"
       - "C:/Program Files/CMake/share/cmake-3.31/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
-      - "CMakeLists.txt:2 (project)"
+      - "CMakeLists.txt:5 (project)"
     checks:
       - "Detecting C compiler ABI info"
     directories:
-      source: "C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/CMakeFiles/CMakeScratch/TryCompile-18sz23"
-      binary: "C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/CMakeFiles/CMakeScratch/TryCompile-18sz23"
+      source: "C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/CMakeFiles/CMakeScratch/TryCompile-d7xmdr"
+      binary: "C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/CMakeFiles/CMakeScratch/TryCompile-d7xmdr"
     cmakeVariables:
       CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
       CMAKE_C_FLAGS_DEBUG: "/MDd /Zi /Ob0 /Od /RTC1"
@@ -82,40 +82,40 @@ events:
       variable: "CMAKE_C_ABI_COMPILED"
       cached: true
       stdout: |
-        Change Dir: 'C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/CMakeFiles/CMakeScratch/TryCompile-18sz23'
+        Change Dir: 'C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/CMakeFiles/CMakeScratch/TryCompile-d7xmdr'
         
-        Run Build Command(s): "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_6ba4d.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        Run Build Command(s): "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_44108.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
         MSBuild version 17.10.4+10fbfbf2e for .NET Framework
-        Build started 1/14/2025 11:23:51 PM.
+        Build started 1/15/2025 8:55:31 PM.
         
-        Project "C:\\Users\\ASUS\\Desktop\\Augemnted-ARBAB\\40231027\\AUGMENTED_ARBAB\\build\\CMakeFiles\\CMakeScratch\\TryCompile-18sz23\\cmTC_6ba4d.vcxproj" on node 1 (default targets).
+        Project "C:\\Users\\ASUS\\Desktop\\Augemnted-ARBAB\\40231027\\AUGMENTED_ARBAB\\build\\CMakeFiles\\CMakeScratch\\TryCompile-d7xmdr\\cmTC_44108.vcxproj" on node 1 (default targets).
         PrepareForBuild:
-          Creating directory "cmTC_6ba4d.dir\\Debug\\".
+          Creating directory "cmTC_44108.dir\\Debug\\".
           Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
-          Creating directory "C:\\Users\\ASUS\\Desktop\\Augemnted-ARBAB\\40231027\\AUGMENTED_ARBAB\\build\\CMakeFiles\\CMakeScratch\\TryCompile-18sz23\\Debug\\".
-          Creating directory "cmTC_6ba4d.dir\\Debug\\cmTC_6ba4d.tlog\\".
+          Creating directory "C:\\Users\\ASUS\\Desktop\\Augemnted-ARBAB\\40231027\\AUGMENTED_ARBAB\\build\\CMakeFiles\\CMakeScratch\\TryCompile-d7xmdr\\Debug\\".
+          Creating directory "cmTC_44108.dir\\Debug\\cmTC_44108.tlog\\".
         InitializeBuildStatus:
-          Creating "cmTC_6ba4d.dir\\Debug\\cmTC_6ba4d.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
-          Touching "cmTC_6ba4d.dir\\Debug\\cmTC_6ba4d.tlog\\unsuccessfulbuild".
+          Creating "cmTC_44108.dir\\Debug\\cmTC_44108.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_44108.dir\\Debug\\cmTC_44108.tlog\\unsuccessfulbuild".
         ClCompile:
-          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.40.33807\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_6ba4d.dir\\Debug\\\\" /Fd"cmTC_6ba4d.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.31\\Modules\\CMakeCCompilerABI.c"
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.40.33807\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_44108.dir\\Debug\\\\" /Fd"cmTC_44108.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.31\\Modules\\CMakeCCompilerABI.c"
           Microsoft (R) C/C++ Optimizing Compiler Version 19.40.33813 for x64
           Copyright (C) Microsoft Corporation.  All rights reserved.
-          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_6ba4d.dir\\Debug\\\\" /Fd"cmTC_6ba4d.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.31\\Modules\\CMakeCCompilerABI.c"
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_44108.dir\\Debug\\\\" /Fd"cmTC_44108.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.31\\Modules\\CMakeCCompilerABI.c"
           CMakeCCompilerABI.c
         Link:
-          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.40.33807\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\ASUS\\Desktop\\Augemnted-ARBAB\\40231027\\AUGMENTED_ARBAB\\build\\CMakeFiles\\CMakeScratch\\TryCompile-18sz23\\Debug\\cmTC_6ba4d.exe" /INCREMENTAL /ILK:"cmTC_6ba4d.dir\\Debug\\cmTC_6ba4d.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/CMakeFiles/CMakeScratch/TryCompile-18sz23/Debug/cmTC_6ba4d.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/CMakeFiles/CMakeScratch/TryCompile-18sz23/Debug/cmTC_6ba4d.lib" /MACHINE:X64  /machine:x64 cmTC_6ba4d.dir\\Debug\\CMakeCCompilerABI.obj
-          cmTC_6ba4d.vcxproj -> C:\\Users\\ASUS\\Desktop\\Augemnted-ARBAB\\40231027\\AUGMENTED_ARBAB\\build\\CMakeFiles\\CMakeScratch\\TryCompile-18sz23\\Debug\\cmTC_6ba4d.exe
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.40.33807\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\ASUS\\Desktop\\Augemnted-ARBAB\\40231027\\AUGMENTED_ARBAB\\build\\CMakeFiles\\CMakeScratch\\TryCompile-d7xmdr\\Debug\\cmTC_44108.exe" /INCREMENTAL /ILK:"cmTC_44108.dir\\Debug\\cmTC_44108.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/CMakeFiles/CMakeScratch/TryCompile-d7xmdr/Debug/cmTC_44108.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/CMakeFiles/CMakeScratch/TryCompile-d7xmdr/Debug/cmTC_44108.lib" /MACHINE:X64  /machine:x64 cmTC_44108.dir\\Debug\\CMakeCCompilerABI.obj
+          cmTC_44108.vcxproj -> C:\\Users\\ASUS\\Desktop\\Augemnted-ARBAB\\40231027\\AUGMENTED_ARBAB\\build\\CMakeFiles\\CMakeScratch\\TryCompile-d7xmdr\\Debug\\cmTC_44108.exe
         FinalizeBuildStatus:
-          Deleting file "cmTC_6ba4d.dir\\Debug\\cmTC_6ba4d.tlog\\unsuccessfulbuild".
-          Touching "cmTC_6ba4d.dir\\Debug\\cmTC_6ba4d.tlog\\cmTC_6ba4d.lastbuildstate".
-        Done Building Project "C:\\Users\\ASUS\\Desktop\\Augemnted-ARBAB\\40231027\\AUGMENTED_ARBAB\\build\\CMakeFiles\\CMakeScratch\\TryCompile-18sz23\\cmTC_6ba4d.vcxproj" (default targets).
+          Deleting file "cmTC_44108.dir\\Debug\\cmTC_44108.tlog\\unsuccessfulbuild".
+          Touching "cmTC_44108.dir\\Debug\\cmTC_44108.tlog\\cmTC_44108.lastbuildstate".
+        Done Building Project "C:\\Users\\ASUS\\Desktop\\Augemnted-ARBAB\\40231027\\AUGMENTED_ARBAB\\build\\CMakeFiles\\CMakeScratch\\TryCompile-d7xmdr\\cmTC_44108.vcxproj" (default targets).
         
         Build succeeded.
             0 Warning(s)
             0 Error(s)
         
-        Time Elapsed 00:00:00.80
+        Time Elapsed 00:00:00.37
         
       exitCode: 0
   -
@@ -123,7 +123,7 @@ events:
     backtrace:
       - "C:/Program Files/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake:218 (message)"
       - "C:/Program Files/CMake/share/cmake-3.31/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
-      - "CMakeLists.txt:2 (project)"
+      - "CMakeLists.txt:5 (project)"
     message: |
       Parsed C implicit link information:
         link line regex: [^( *|.*[/\\])(ld[0-9]*(\\.[a-z]+)?|link\\.exe|lld-link(\\.exe)?|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
@@ -141,7 +141,7 @@ events:
       - "C:/Program Files/CMake/share/cmake-3.31/Modules/Internal/CMakeDetermineLinkerId.cmake:40 (message)"
       - "C:/Program Files/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake:255 (cmake_determine_linker_id)"
       - "C:/Program Files/CMake/share/cmake-3.31/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
-      - "CMakeLists.txt:2 (project)"
+      - "CMakeLists.txt:5 (project)"
     message: |
       Running the C compiler's linker: "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.40.33807/bin/HostX64/x64/link.exe" "-v"
       Microsoft (R) Incremental Linker Version 14.40.33813.0

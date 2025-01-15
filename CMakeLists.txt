@@ -1,24 +1,54 @@
-cmake_minimum_required(VERSION 3.10)  # Updated to a newer version to avoid deprecation warnings
-project(database LANGUAGES C)         # Explicitly specify the language as C
+# Minimum required version of CMake
+cmake_minimum_required(VERSION 3.10)
 
-set(CMAKE_C_STANDARD 99)              # Use C99 standard
-set(CMAKE_C_STANDARD_REQUIRED ON)     # Enforce the C99 standard
-set(CMAKE_C_EXTENSIONS OFF)           # Disable compiler-specific extensions
+# Project name and version
+project(MyMixedProject VERSION 1.0 LANGUAGES C Java)
 
-# Source files
-set(SOURCES
-    src/command.c
-    src/hashmap.c
-    src/rbtree.c
-    src/record.c
-    src/table.c
-    src/utils.c
-    src/file_io.c
-    src/main.c
+# Set the source and header directories
+set(C_SOURCE_DIR "${CMAKE_SOURCE_DIR}/src/C")       # C source files
+set(JAVA_SOURCE_DIR "${CMAKE_SOURCE_DIR}/src/java") # Java source files
+set(HEADER_DIR "${CMAKE_SOURCE_DIR}/include")       # Header files
+
+# Set the output directories
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+set(CMAKE_JAVA_CLASS_OUTPUT_PATH "${CMAKE_BINARY_DIR}/classes")
+
+# Find the Java Development Kit (JDK)
+find_package(Java REQUIRED COMPONENTS Development)
+include(UseJava)
+
+# Compile the Java source files
+add_jar(MyJavaProject
+    SOURCES "${JAVA_SOURCE_DIR}/Main.java"
+    OUTPUT_DIR "${CMAKE_JAVA_CLASS_OUTPUT_PATH}"
 )
 
-# Create executable
-add_executable(database ${SOURCES})
+# Set the C source files
+set(C_SOURCES
+    "${C_SOURCE_DIR}/command.c"
+    "${C_SOURCE_DIR}/file_io.c"
+    "${C_SOURCE_DIR}/hashmap.c"
+    # "${C_SOURCE_DIR}/main.c"
+    "${C_SOURCE_DIR}/rbtree.c"
+    "${C_SOURCE_DIR}/record.c"
+    "${C_SOURCE_DIR}/table.c"
+    "${C_SOURCE_DIR}/utils.c"
+)
 
-# Include directories (modern CMake practice)
-target_include_directories(database PRIVATE include)
+# Add the C executable
+add_executable(my_c_executable ${C_SOURCES})
+
+# Include the header directory
+target_include_directories(my_c_executable PRIVATE "${HEADER_DIR}")
+
+# Install the C executable
+install(TARGETS my_c_executable
+    RUNTIME DESTINATION bin
+)
+
+# Install the Java classes
+install(DIRECTORY "${CMAKE_JAVA_CLASS_OUTPUT_PATH}"
+    DESTINATION classes
+)

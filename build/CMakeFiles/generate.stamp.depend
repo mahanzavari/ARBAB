@@ -1,8 +1,11 @@
 # CMake generation dependency list for this directory.
 C:/Program Files/CMake/share/cmake-3.31/Modules/CMakeCInformation.cmake
 C:/Program Files/CMake/share/cmake-3.31/Modules/CMakeCommonLanguageInclude.cmake
+C:/Program Files/CMake/share/cmake-3.31/Modules/CMakeConfigurableFile.in
+C:/Program Files/CMake/share/cmake-3.31/Modules/CMakeFindJavaCommon.cmake
 C:/Program Files/CMake/share/cmake-3.31/Modules/CMakeGenericSystem.cmake
 C:/Program Files/CMake/share/cmake-3.31/Modules/CMakeInitializeConfigs.cmake
+C:/Program Files/CMake/share/cmake-3.31/Modules/CMakeJavaInformation.cmake
 C:/Program Files/CMake/share/cmake-3.31/Modules/CMakeLanguageInformation.cmake
 C:/Program Files/CMake/share/cmake-3.31/Modules/CMakeRCInformation.cmake
 C:/Program Files/CMake/share/cmake-3.31/Modules/CMakeSystemSpecificInformation.cmake
@@ -10,6 +13,9 @@ C:/Program Files/CMake/share/cmake-3.31/Modules/CMakeSystemSpecificInitialize.cm
 C:/Program Files/CMake/share/cmake-3.31/Modules/Compiler/CMakeCommonCompilerMacros.cmake
 C:/Program Files/CMake/share/cmake-3.31/Modules/Compiler/MSVC-C.cmake
 C:/Program Files/CMake/share/cmake-3.31/Modules/Compiler/MSVC.cmake
+C:/Program Files/CMake/share/cmake-3.31/Modules/FindJava.cmake
+C:/Program Files/CMake/share/cmake-3.31/Modules/FindPackageHandleStandardArgs.cmake
+C:/Program Files/CMake/share/cmake-3.31/Modules/FindPackageMessage.cmake
 C:/Program Files/CMake/share/cmake-3.31/Modules/Internal/CMakeCLinkerInformation.cmake
 C:/Program Files/CMake/share/cmake-3.31/Modules/Internal/CMakeCommonLinkerInformation.cmake
 C:/Program Files/CMake/share/cmake-3.31/Modules/Platform/Linker/Windows-MSVC-C.cmake
@@ -19,7 +25,9 @@ C:/Program Files/CMake/share/cmake-3.31/Modules/Platform/Windows-MSVC-C.cmake
 C:/Program Files/CMake/share/cmake-3.31/Modules/Platform/Windows-MSVC.cmake
 C:/Program Files/CMake/share/cmake-3.31/Modules/Platform/Windows.cmake
 C:/Program Files/CMake/share/cmake-3.31/Modules/Platform/WindowsPaths.cmake
+C:/Program Files/CMake/share/cmake-3.31/Modules/UseJava.cmake
 C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/CMakeLists.txt
 C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/CMakeFiles/3.31.4/CMakeCCompiler.cmake
+C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/CMakeFiles/3.31.4/CMakeJavaCompiler.cmake
 C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/CMakeFiles/3.31.4/CMakeRCCompiler.cmake
 C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/CMakeFiles/3.31.4/CMakeSystem.cmake

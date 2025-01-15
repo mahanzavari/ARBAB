@@ -1,0 +1,66 @@
+^C:\USERS\ASUS\DESKTOP\AUGEMNTED-ARBAB\40231027\AUGMENTED_ARBAB\BUILD\CMAKEFILES\957D942A0B08A8C494FA3C1ED910067E\JAVA_COMPILED_MYJAVAPROJECT.RULE
+setlocal
+cd C:\Users\ASUS\Desktop\Augemnted-ARBAB\40231027\AUGMENTED_ARBAB
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -DCMAKE_JAVA_CLASS_OUTPUT_PATH=C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/CMakeFiles/MyJavaProject.dir -DCMAKE_JAR_CLASSES_PREFIX= -P "C:/Program Files/CMake/share/cmake-3.31/Modules/UseJava/ClearClassFiles.cmake" --log-level STATUS
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\Java\jdk-21\bin\javac.exe" -classpath "";"C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB";"C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/classes" -d C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/CMakeFiles/MyJavaProject.dir @C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/CMakeFiles/MyJavaProject.dir/java_sources
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/CMakeFiles/MyJavaProject.dir/java_compiled_MyJavaProject
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\ASUS\DESKTOP\AUGEMNTED-ARBAB\40231027\AUGMENTED_ARBAB\BUILD\CMAKEFILES\957D942A0B08A8C494FA3C1ED910067E\JAVA_CLASS_FILELIST.RULE
+setlocal
+cd C:\Users\ASUS\Desktop\Augemnted-ARBAB\40231027\AUGMENTED_ARBAB
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -DCMAKE_JAVA_CLASS_OUTPUT_PATH=C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/CMakeFiles/MyJavaProject.dir -DCMAKE_JAR_CLASSES_PREFIX= -P "C:/Program Files/CMake/share/cmake-3.31/Modules/UseJava/ClassFilelist.cmake"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\ASUS\DESKTOP\AUGEMNTED-ARBAB\40231027\AUGMENTED_ARBAB\BUILD\CMAKEFILES\9C99FF0CD1F06069DDCC0E251E108884\MYJAVAPROJECT.JAR.RULE
+setlocal
+cd C:\Users\ASUS\Desktop\Augemnted-ARBAB\40231027\AUGMENTED_ARBAB\build\CMakeFiles\MyJavaProject.dir
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\Java\jdk-21\bin\jar.exe" -cf C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/classes/MyJavaProject.jar @java_class_filelist
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -D_JAVA_TARGET_DIR=C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/classes -D_JAVA_TARGET_OUTPUT_NAME=MyJavaProject.jar -D_JAVA_TARGET_OUTPUT_LINK= -P "C:/Program Files/CMake/share/cmake-3.31/Modules/UseJava/Symlinks.cmake"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\ASUS\DESKTOP\AUGEMNTED-ARBAB\40231027\AUGMENTED_ARBAB\BUILD\CMAKEFILES\437F8D3B905340C53AECE4B5DFC85F0F\MYJAVAPROJECT.RULE
+setlocal
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\ASUS\DESKTOP\AUGEMNTED-ARBAB\40231027\AUGMENTED_ARBAB\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB -BC:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build --check-stamp-file C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

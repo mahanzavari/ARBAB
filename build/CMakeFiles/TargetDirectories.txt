@@ -1,3 +1,5 @@
-C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/CMakeFiles/database.dir
+C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/CMakeFiles/MyJavaProject.dir
+C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/CMakeFiles/my_c_executable.dir
+C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/CMakeFiles/INSTALL.dir
 C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/CMakeFiles/ALL_BUILD.dir
 C:/Users/ASUS/Desktop/Augemnted-ARBAB/40231027/AUGMENTED_ARBAB/build/CMakeFiles/ZERO_CHECK.dir

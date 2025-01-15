@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\ASUS\Desktop\Augemnted-ARBAB\40231027\AUGMENTED_ARBAB\build\CMakeFiles\437f8d3b905340c53aece4b5dfc85f0f\INSTALL_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{DBC69B3A-EEA6-3374-9110-F7DEC008DEEA}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
