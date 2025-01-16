@@ -1,54 +1,35 @@
-# Minimum required version of CMake
 cmake_minimum_required(VERSION 3.10)
+project(CoreLogic)
 
-# Project name and version
-project(MyMixedProject VERSION 1.0 LANGUAGES C Java)
+# Set the C standard
+set(CMAKE_C_STANDARD 99)
 
-# Set the source and header directories
-set(C_SOURCE_DIR "${CMAKE_SOURCE_DIR}/src/C")       # C source files
-set(JAVA_SOURCE_DIR "${CMAKE_SOURCE_DIR}/src/java") # Java source files
-set(HEADER_DIR "${CMAKE_SOURCE_DIR}/include")       # Header files
+# Include directories
+include_directories(${CMAKE_SOURCE_DIR}/include)
 
-# Set the output directories
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
-set(CMAKE_JAVA_CLASS_OUTPUT_PATH "${CMAKE_BINARY_DIR}/classes")
-
-# Find the Java Development Kit (JDK)
-find_package(Java REQUIRED COMPONENTS Development)
-include(UseJava)
-
-# Compile the Java source files
-add_jar(MyJavaProject
-    SOURCES "${JAVA_SOURCE_DIR}/Main.java"
-    OUTPUT_DIR "${CMAKE_JAVA_CLASS_OUTPUT_PATH}"
+# Source files
+set(SOURCES
+    src/c/command.c
+    src/c/file_io.c
+    src/c/hashmap.c
+    src/c/rbtree.c
+    src/c/record.c
+    src/c/table.c
+    src/c/utils.c
 )
 
-# Set the C source files
-set(C_SOURCES
-    "${C_SOURCE_DIR}/command.c"
-    "${C_SOURCE_DIR}/file_io.c"
-    "${C_SOURCE_DIR}/hashmap.c"
-    # "${C_SOURCE_DIR}/main.c"
-    "${C_SOURCE_DIR}/rbtree.c"
-    "${C_SOURCE_DIR}/record.c"
-    "${C_SOURCE_DIR}/table.c"
-    "${C_SOURCE_DIR}/utils.c"
-)
+# Create a shared library
+add_library(corelogic SHARED ${SOURCES})
 
-# Add the C executable
-add_executable(my_c_executable ${C_SOURCES})
+# Set the output directory for the shared library
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 
-# Include the header directory
-target_include_directories(my_c_executable PRIVATE "${HEADER_DIR}")
+# Ensure the library is named correctly for Java JNI
+if(WIN32)
+    set_target_properties(corelogic PROPERTIES SUFFIX ".dll")
+elseif(UNIX)
+    set_target_properties(corelogic PROPERTIES SUFFIX ".so")
+endif()
 
-# Install the C executable
-install(TARGETS my_c_executable
-    RUNTIME DESTINATION bin
-)
-
-# Install the Java classes
-install(DIRECTORY "${CMAKE_JAVA_CLASS_OUTPUT_PATH}"
-    DESTINATION classes
-)
+# Install the shared library to the lib directory
+install(TARGETS corelogic DESTINATION lib)

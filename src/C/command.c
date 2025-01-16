@@ -143,6 +143,7 @@ void create_table_cmd(const char* command) {
     extern HashMap hashmap;
     hashmap_insert(&hashmap, table_name, new_table);
     printf("Table '%s' created successfully with %d columns.\n", table_name, num_columns);
+    fflush(stdout);
 }
 
 
