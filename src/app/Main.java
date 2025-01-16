@@ -112,20 +112,69 @@ public class Main {
             System.out.println("Error handling command: " + e.getMessage());
         }
     }
-
     private void help() {
         System.out.println("\nAvailable Commands:");
         System.out.println("-------------------");
+    
+        // CREATE TABLE command
         System.out.println("1. CREATE TABLE <table_name> <num_columns>");
+        System.out.println("   - Creates a new table with the specified name and number of columns.");
+        System.out.println("   - After entering this command, you will be prompted to define the column names, types, and constraints.");
+        System.out.println("   - Example: CREATE TABLE students 3\n");
+    
+        // DELETE TABLE command
         System.out.println("2. DELETE TABLE <table_name>");
+        System.out.println("   - Deletes the specified table and all its records.");
+        System.out.println("   - Example: DELETE TABLE students\n");
+    
+        // CREATE INDEX command
         System.out.println("3. CREATE INDEX <table_name>");
+        System.out.println("   - Creates an index on the primary key (student-number) of the specified table.");
+        System.out.println("   - Example: CREATE INDEX students\n");
+    
+        // ADD command
         System.out.println("4. ADD <table_name> <column_name_1> <value_1> ... <column_name_n> <value_n>");
+        System.out.println("   - Adds a new record to the specified table.");
+        System.out.println("   - Example: ADD students student-number 123 name \"John Doe\" score 85\n");
+    
+        // DELETE command
         System.out.println("5. DELETE <table_name> <column_name> <value>");
+        System.out.println("   - Deletes records from the specified table where the column matches the value.");
+        System.out.println("   - Example: DELETE students student-number 123\n");
+    
+        // UPDATE command
         System.out.println("6. UPDATE <table_name> <column_name> <old_value> <new_value>");
+        System.out.println("   - Updates records in the specified table where the column matches the old value.");
+        System.out.println("   - Example: UPDATE students score 85 90\n");
+    
+        // SELECT command
         System.out.println("7. SELECT <table_name> <column_name> <value> [SORTED]");
+        System.out.println("   - Selects records from the specified table where the column matches the value.");
+        System.out.println("   - Use the optional SORTED keyword to sort the results by student-number.");
+        System.out.println("   - Example: SELECT students score 85 SORTED\n");
+    
+        // SAVE command
         System.out.println("8. SAVE <table_name> <filename>");
+        System.out.println("   - Saves the specified table to a CSV file.");
+        System.out.println("   - Example: SAVE students data.csv\n");
+    
+        // LOAD command
         System.out.println("9. LOAD <table_name> <filename>");
+        System.out.println("   - Loads the specified table from a CSV file.");
+        System.out.println("   - Example: LOAD students data.csv\n");
+    
+        // HELP command
         System.out.println("10. HELP");
+        System.out.println("    - Displays this help message.\n");
+    
+        // EXIT command
         System.out.println("11. EXIT");
+        System.out.println("    - Exits the program.\n");
+    
+        // Additional information
+        System.out.println("Note:");
+        System.out.println("- Column types can be either 'INTEGER' or 'STRING'.");
+        System.out.println("- Constraints can include 'UNIQUE', 'PRIMARY KEY', and 'NOT NULL'.");
+        System.out.println("- The 'general-course-score' and 'core-course-score' columns must be between 0 and 20.");
     }
 }
