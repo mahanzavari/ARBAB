@@ -1,235 +1,129 @@
-# Database Management System (DBMS) Project
+# ARBAB
 
-This project is a simple Database Management System (DBMS) implemented in C. It supports basic database operations such as creating tables, adding records, deleting records, updating records, and querying data. The system also includes indexing using a Red-Black Tree for efficient data retrieval.
+## Database Management System (DBMS) Project
 
----
+This project is a simple Database Management System (DBMS) implemented in C. It supports basic database operations such as creating and deleting tables, adding, updating, and deleting records, and querying data. The system also includes features like indexing using Red-Black Trees, transaction management, and file I/O for saving and loading data in CSV and binary formats.
 
 ## Features
 
-- **Table Management**:
-  - Create and delete tables.
-  - Define columns with specific data types (e.g., `INTEGER`, `STRING`).
-  
-- **Record Management**:
-  - Add, delete, and update records.
-  - Validate data (e.g., score ranges for courses).
+### Table Management
+- **Create Tables**: Define tables with columns, specifying data types (INTEGER, STRING) and constraints (UNIQUE, PRIMARY KEY, NOT NULL).
+- **Delete Tables**: Remove tables and all associated records from the database.
 
-- **Indexing**:
-  - Create an index on the `student-number` column using a Red-Black Tree for faster lookups.
+### Record Management
+- **Add Records**: Insert new records into a table, ensuring constraints like UNIQUE and NOT NULL are respected.
+- **Update Records**: Modify existing records based on specified conditions.
+- **Delete Records**: Remove records that match a given condition.
+- **Query Records**: Select records based on conditions, with optional sorting by a specific column.
 
-- **Querying**:
-  - Select records based on specific criteria.
-  - Sort records by `student-number`.
+### Indexing
+- **Red-Black Tree Indexing**: Efficiently index records using Red-Black Trees, particularly for primary key columns (e.g., student-number), enabling fast search operations.
 
-- **Help Command**:
-  - Provides a list of available commands and usage examples.
+### Transaction Management
+- **Begin Transaction**: Start a transaction to ensure atomicity and consistency.
+- **Commit Transaction**: Save changes made during the transaction.
+- **Rollback Transaction**: Undo changes made during the transaction, restoring the database to its previous state.
 
----
+### File I/O
+- **CSV Support**: Save and load tables in CSV format for easy data exchange with other applications.
+- **Binary Support**: Save and load tables in binary format for faster I/O operations and compact storage.
+
+### Utilities
+- **Validation**: Ensure data integrity by validating inputs, such as checking if scores are within the valid range (0 to 20).
+- **Sorting**: Sort records using merge sort, allowing for efficient retrieval of sorted data.
+- **Parsing**: Parse user commands to extract table names, column names, and values for various operations.
 
 ## Project Structure
 
-The project is organized into the following files and directories:
+The project is organized into the following key files:
 
-- **`src/`**: Contains the source code for the project.
-  - `command.c`: Handles command parsing and execution.
-  - `hashmap.c`: Implements a hashmap for table storage.
-  - `rbtree.c`: Implements a Red-Black Tree for indexing.
-  - `record.c`: Manages record creation and deletion.
-  - `table.c`: Manages table operations.
-  - `utils.c`: Provides utility functions (e.g., sorting, validation).
-  - `main.c`: The entry point of the program.
-
-- **`include/`**: Contains header files for the project.
-  - `command.h`: Declares command-related functions.
-  - `hashmap.h`: Declares hashmap-related structures and functions.
-  - `rbtree.h`: Declares Red-Black Tree-related structures and functions.
-  - `record.h`: Declares record-related structures and functions.
-  - `table.h`: Declares table-related structures and functions.
-  - `utils.h`: Declares utility functions.
-
-- **`README.md`**: This file, providing an overview of the project.
-
----
-
-## Getting Started
-
-### Prerequisites
-
-- **C Compiler**: Ensure you have a C compiler installed (e.g., `gcc`).
-- **Make**: Ensure you have `make` installed for building the project.
-
-### Building the Project
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/your-repo-name.git
-   cd your-repo-name
-   ```
-
-2. Compile the project:
-   ```bash
-   make
-   ```
-
-   This will generate an executable named `database`.
-
-### Running the Project
-
-1. Run the executable:
-   ```bash
-   ./database
-   ```
-
-2. The program will prompt you to enter commands. Type `HELP` to see a list of available commands and their usage.
-
----
+- **`command.c`**: Handles user commands and interactions.
+- **`file_io.c`**: Manages saving and loading tables to/from files.
+- **`hashmap.c`**: Implements a hashmap for storing and retrieving tables.
+- **`main.c`**: The main program loop for processing user input.
+- **`rbtree.c`**: Implements Red-Black Trees for indexing.
+- **`record.c`**: Manages record creation and deletion.
+- **`table.c`**: Implements table-related functions.
+- **`utils.c`**: Provides utility functions like sorting and validation.
 
 ## Usage
 
-### Available Commands
+To compile and run the project:
 
-1. **Create Table**:
+1. **Clone the repository**:
    ```bash
-   CREATE TABLE <table_name>
-   ```
-   Example:
-   ```bash
-   CREATE TABLE students
+   git clone https://github.com/your-username/dbms-project.git
+   cd dbms-project
    ```
 
-2. **Delete Table**:
+2. **Compile the project**:
    ```bash
-   DELETE TABLE <table_name>
-   ```
-   Example:
-   ```bash
-   DELETE TABLE students
+   gcc -o dbms main.c command.c file_io.c hashmap.c rbtree.c record.c table.c utils.c
    ```
 
-3. **Create Index**:
+3. **Run the program**:
    ```bash
-   CREATE INDEX <table_name>
-   ```
-   Example:
-   ```bash
-   CREATE INDEX students
+   ./dbms
    ```
 
-4. **Add Record**:
-   ```bash
-   ADD <table_name> <column_name_1> <value_1> ... <column_name_n> <value_n>
-   ```
-   Example:
-   ```bash
-   ADD students student-number 12 general-course-name "DSA" general-course-instructor "Dr.ARBAB" general-course-score 85 core-course-name "Physics" core-course-instructor "Dr.zeinali" core-course-score 90
-   ```
+4. **Use the following commands** to interact with the database:
 
-5. **Delete Record**:
-   ```bash
-   DELETE <table_name> <column_name> <value>
-   ```
-   Example:
-   ```bash
-   DELETE students student-number 12
-   ```
+   - **Create a table**:
+     ```
+     CREATE TABLE <table_name> <num_columns>
+     ```
 
-6. **Update Record**:
-   ```bash
-   UPDATE <table_name> <column_name> <old_value> <new_value>
-   ```
-   Example:
-   ```bash
-   UPDATE students core-course-score 90 95
-   ```
+   - **Add a record**:
+     ```
+     ADD <table_name> <column_name_1> <value_1> ... <column_name_n> <value_n>
+     ```
 
-7. **Select Records**:
-   ```bash
-   SELECT <table_name> <column_name> <value> [SORTED]
-   ```
-   Example:
-   ```bash
-   SELECT students core-course-score 90 SORTED
-   ```
+   - **Query records**:
+     ```
+     SELECT <table_name> <column_name> <value> [SORTED]
+     ```
 
-8. **Help**:
-   ```bash
-   HELP
-   ```
+   - **Save a table**:
+     ```
+     SAVE <table_name> <filename>
+     ```
 
-9. **Exit**:
-   ```bash
-   exit
-   ```
+   - **Begin a transaction**:
+     ```
+     BEGIN
+     ```
 
----
+   - **Exit the program**:
+     ```
+     exit
+     ```
 
-## Example Workflow
+## Dependencies
 
-1. Create a table:
-   ```bash
-   CREATE TABLE students
-   ```
-
-2. Add a record:
-   ```bash
-   ADD students student-number 12 general-course-name "DSA" general-course-instructor "Dr.ARBAB" general-course-score 85 core-course-name "Physics" core-course-instructor "Dr.zeinali" core-course-score 90
-   ```
-
-3. Query records:
-   ```bash
-   SELECT students core-course-score 90 SORTED
-   ```
-
-4. Update a record:
-   ```bash
-   UPDATE students core-course-score 90 95
-   ```
-
-5. Delete a record:
-   ```bash
-   DELETE students student-number 12
-   ```
-
-6. Exit the program:
-   ```bash
-   exit
-   ```
-
----
-
-## Contributing
-
-Contributions are welcome! If you'd like to contribute, please follow these steps:
-
-1. Fork the repository.
-2. Create a new branch for your feature or bugfix.
-3. Commit your changes.
-4. Push your branch to your fork.
-5. Submit a pull request.
-
----
+- **C Standard Library**: The project uses standard C libraries such as `stdio.h`, `stdlib.h`, and `string.h`.
 
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
----
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
 
 ## Acknowledgments
 
-- This project was developed as part of a learning exercise in C programming and data structures.
-- Special thanks to the creators of the Red-Black Tree algorithm for providing an efficient indexing mechanism.
-
----
+- This project was developed as part of a learning exercise in C programming and database management.
+- Special thanks to the open-source community for providing valuable resources and inspiration.
 
 ## Contact
 
-If you have any questions or suggestions, feel free to reach out:
+For any questions, suggestions, or feedback, feel free to reach out:
 
-- **Your Name**: [Your Email](mailto:your-email@example.com)
-- **GitHub**: [Your GitHub Profile](https://github.com/your-username)
+- **Email**: [mahanzavari@gmail.com](mailto:mahanzavari@gmail.com)
+- **GitHub Issues**: [Open an Issue](https://github.com/mahanzavari/ARBAB/issues)
+- **Pull Requests**: Contributions are welcome! Please submit a pull request with your changes.
 
 ---
 
-Thank you for using this project! 🚀
-```
+Feel free to contact us if you have any questions or need further assistance!
+
