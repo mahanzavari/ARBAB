@@ -52,18 +52,18 @@ To compile and run the project:
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/dbms-project.git
-   cd dbms-project
+   git clone https://github.com/mahanzavari/ARBAB.git
+   cd ARBAB
    ```
 
 2. **Compile the project**:
    ```bash
-   gcc -o dbms main.c command.c file_io.c hashmap.c rbtree.c record.c table.c utils.c
+   gcc -o ARBAB main.c command.c file_io.c hashmap.c rbtree.c record.c table.c utils.c
    ```
 
 3. **Run the program**:
    ```bash
-   ./dbms
+   ./ARBAB
    ```
 
 4. **Use the following commands** to interact with the database:
