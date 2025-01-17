@@ -123,7 +123,3 @@ For any questions, suggestions, or feedback, feel free to reach out:
 - **GitHub Issues**: [Open an Issue](https://github.com/mahanzavari/ARBAB/issues)
 - **Pull Requests**: Contributions are welcome! Please submit a pull request with your changes.
 
----
-
-Feel free to contact us if you have any questions or need further assistance!
-
