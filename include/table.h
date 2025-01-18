@@ -3,7 +3,7 @@
 
 #include "record.h"
 #include "rbtree.h"
-
+#include <stdbool.h>
 #define MAX_TABLE_NAME_LENGTH 32
 #define MAX_COLUMN_NAME_LENGTH 32
 #define MAX_COLUMNS 8
@@ -17,6 +17,7 @@ typedef struct ColumnDef {
     int is_unique; // 1 if unique, 0 otherwise
     int is_primary_key; // 1 if primary key, 0 otherwise
     int is_not_null; // 1 if not null, 0 otherwise
+    bool is_indexed;
 } ColumnDef;
 
 typedef struct Table {
@@ -26,6 +27,7 @@ typedef struct Table {
     Record* head;
     Record* tail;
     struct RBTreeNode* index_root;
+    int indexed_column_index;
 } Table;
 
 // Function prototypes

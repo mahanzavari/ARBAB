@@ -1,16 +1,19 @@
+// command.c
 #include "../include/command.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>              
+#include <string.h>
+#include <stdbool.h>
+
 #include "../include/table.h"
-#include "../include/record.h"  
+#include "../include/record.h"
 #include "../include/rbtree.h"
 #include "../include/utils.h"
 #include "../include/hashmap.h"
 
 typedef struct {
-    Table* original_tables[HASHMAP_SIZE]; // To store original table states
-    int in_transaction; // 1 if a transaction is active, 0 otherwise
+    Table* original_tables[HASHMAP_SIZE];
+    int in_transaction;
 } TransactionState;
 
 TransactionState transaction_state = {0};
@@ -26,6 +29,10 @@ void begin_transaction() {
         HashMapNode* current = hashmap.buckets[i];
         while (current != NULL) {
             Table* original_table = (Table*)malloc(sizeof(Table));
+             if (!original_table) {
+                perror("Memory allocation failed");
+                exit(EXIT_FAILURE);
+            }
             memcpy(original_table, current->table, sizeof(Table));
             transaction_state.original_tables[i] = original_table;
             current = current->next;
@@ -64,8 +71,18 @@ void rollback_transaction() {
     for (int i = 0; i < HASHMAP_SIZE; i++) {
         HashMapNode* current = hashmap.buckets[i];
         while (current != NULL) {
-            memcpy(current->table, transaction_state.original_tables[i], sizeof(Table));
+            if(transaction_state.original_tables[i]!=NULL)
+            {
+                memcpy(current->table, transaction_state.original_tables[i], sizeof(Table));
+            }
             current = current->next;
+        }
+    }
+     // Free the saved original tables
+    for (int i = 0; i < HASHMAP_SIZE; i++) {
+        if (transaction_state.original_tables[i] != NULL) {
+            free(transaction_state.original_tables[i]);
+            transaction_state.original_tables[i] = NULL;
         }
     }
 
@@ -73,7 +90,7 @@ void rollback_transaction() {
     printf("Transaction rolled back.\n");
 }
 
-// CREATE TABLE <table_name>
+// CREATE TABLE <table_name> <num_columns>
 void create_table_cmd(const char* command) {
     char table_name[MAX_TABLE_NAME_LENGTH];
     int num_columns;
@@ -81,6 +98,11 @@ void create_table_cmd(const char* command) {
     // Parse the command to get table name and number of columns
     if (sscanf(command, "CREATE TABLE %s %d", table_name, &num_columns) != 2) {
         printf("Invalid CREATE TABLE command. Usage: CREATE TABLE <table_name> <num_columns>\n");
+        return;
+    }
+
+     if (num_columns <= 0 || num_columns > MAX_COLUMNS) {
+        printf("Error: Number of columns must be between 1 and %d.\n", MAX_COLUMNS);
         return;
     }
 
@@ -95,7 +117,8 @@ void create_table_cmd(const char* command) {
         perror("Memory allocation failed");
         exit(EXIT_FAILURE);
     }
-    strcpy(new_table->name, table_name);
+    strncpy(new_table->name, table_name, MAX_TABLE_NAME_LENGTH -1);
+     new_table->name[MAX_TABLE_NAME_LENGTH-1] = '\0';
     new_table->num_columns = num_columns;
 
     // Allocate memory for the columns
@@ -113,11 +136,31 @@ void create_table_cmd(const char* command) {
         char constraints[50];
 
         printf("Enter column %d name: ", i + 1);
-        scanf("%s", column_name);
-        printf("Enter column %d type (INTEGER or STRING): ", i + 1);
-        scanf("%s", column_type);
+        if (scanf("%s", column_name) != 1) {
+             printf("Error reading column name.\n");
+            free(new_table->columns);
+            free(new_table);
+             while(getchar() != '\n');
+            return;
+        }
+
+         printf("Enter column %d type (INTEGER or STRING): ", i + 1);
+        if (scanf("%s", column_type) != 1) {
+              printf("Error reading column type.\n");
+            free(new_table->columns);
+            free(new_table);
+             while(getchar() != '\n');
+            return;
+        }
+
         printf("Enter column %d constraints (UNIQUE, PRIMARY_KEY, NOT_NULL): ", i + 1);
-        scanf("%s", constraints);
+         if (scanf("%s", constraints) != 1) {
+              printf("Error reading column constraints.\n");
+            free(new_table->columns);
+            free(new_table);
+             while(getchar() != '\n');
+            return;
+         }
 
         if (strcmp(column_type, "INTEGER") != 0 && strcmp(column_type, "STRING") != 0) {
             printf("Error: Invalid column type. Use 'INTEGER' or 'STRING'.\n");
@@ -126,8 +169,10 @@ void create_table_cmd(const char* command) {
             return;
         }
 
-        strcpy(new_table->columns[i].name, column_name);
-        strcpy(new_table->columns[i].type, column_type);
+        strncpy(new_table->columns[i].name, column_name, MAX_COLUMN_NAME_LENGTH-1);
+         new_table->columns[i].name[MAX_COLUMN_NAME_LENGTH-1] = '\0';
+        strncpy(new_table->columns[i].type, column_type, 9);
+        new_table->columns[i].type[9] = '\0';
         new_table->columns[i].is_unique = (strstr(constraints, "UNIQUE") != NULL);
         new_table->columns[i].is_primary_key = (strstr(constraints, "PRIMARY_KEY") != NULL);
         new_table->columns[i].is_not_null = (strstr(constraints, "NOT_NULL") != NULL);
@@ -142,6 +187,7 @@ void create_table_cmd(const char* command) {
     hashmap_insert(&hashmap, table_name, new_table);
     printf("Table '%s' created successfully with %d columns.\n", table_name, num_columns);
 }
+
 // DELETE TABLE <table_name>
 void delete_table_cmd(const char* command) {
     char table_name[MAX_TABLE_NAME_LENGTH];
@@ -161,7 +207,8 @@ void delete_table_cmd(const char* command) {
         }
 
         // Free the Red-Black Tree index
-        rbt_free_tree(table->index_root);
+        if(table->index_root!=NULL)
+            rbt_free_tree(table->index_root);
 
         // Free the columns array
         free(table->columns);
@@ -204,124 +251,123 @@ void create_index_cmd(const char* command) {
 
 int parse_command(const char* command, char** tokens, int max_tokens) {
     int token_index = 0;
-    const char* ptr = command;
-    while (token_index < max_tokens && *ptr != '\0') {
-        // Skip any leading spaces
-        while (*ptr == ' ' && *ptr != '\0') ptr++;
-        if (*ptr == '"') {
-            // Start of quoted string
-            ptr++;
-            const char* token_start = ptr;
-            while (*ptr != '"' && *ptr != '\0') ptr++;
-            if (*ptr == '"') {
-                // Allocate memory for the token
-                tokens[token_index] = malloc(ptr - token_start + 1);
-                if (tokens[token_index] == NULL) {
-                    // Handle memory allocation error
-                    return -1;
-                }
-                strncpy((char*)tokens[token_index], (char*)token_start, ptr - token_start);
-                tokens[token_index][ptr - token_start] = '\0';
-                token_index++;
-                ptr++;
-            } else {
-                // Unterminated quote
-                return -1;
-            }
-        } else if (*ptr != '\0') {
-            // Start of unquoted token
-            const char* token_start = ptr;
-            while (*ptr != ' ' && *ptr != '\0') ptr++;
-            int token_len = ptr - token_start;
-            tokens[token_index] = malloc(token_len + 1);
-            if (tokens[token_index] == NULL) {
-                // Handle memory allocation error
-                return -1;
-            }
-            strncpy((char*)tokens[token_index], (char*)token_start, token_len);
-            tokens[token_index][token_len] = '\0';
-            token_index++;
-        }
+    char* temp_command = strdup(command);
+    if (temp_command == NULL) {
+        return -1; // Memory allocation error
     }
-    return token_index;
+
+    char* rest = temp_command;
+    char* token;
+    while (token_index < max_tokens && (token = strtok_s(rest, " ", &rest)) != NULL) {
+        size_t token_len = strlen(token);
+        if (token[0] == '"' && token[token_len - 1] == '"') {
+            // Remove quotes for quoted strings
+            tokens[token_index] = malloc(token_len - 1); //Allocate size for string without quotes
+            if (tokens[token_index] == NULL) {
+                free(temp_command);
+                 for(int i = 0; i<token_index; i++)
+                   free(tokens[i]);
+                 return -1; // Handle memory allocation error
+             }
+             strncpy(tokens[token_index], token+1, token_len - 2); //Copy string without quotes
+             tokens[token_index][token_len - 2] = '\0';
+        } else {
+          tokens[token_index] = malloc(token_len + 1);
+            if (tokens[token_index] == NULL) {
+               free(temp_command);
+                for (int i = 0; i < token_index; i++)
+                {
+                 free(tokens[i]);
+                }
+
+                return -1; // Memory allocation error
+            }
+             strncpy(tokens[token_index], token, token_len);
+              tokens[token_index][token_len] = '\0';
+        }
+         token_index++;
+    }
+     free(temp_command);
+     return token_index;
 }
 
 // ADD <table_name> <column_name_1> <value_1> ... <column_name_n> <value_n>
-// ADD <table_name> <column_name_1> <value_1> ... <column_name_n> <value_n>
 void add_record_cmd(const char* command) {
     char table_name[MAX_TABLE_NAME_LENGTH];
-    char* tokens[50]; // Array to hold tokens (column names and values)
+    char* tokens[100];
     int num_tokens = 0;
-
-    // Parse the command into tokens
-    char* rest = (char*)command;
-    char* token;
-
-    // Skip the "ADD" command
-    token = strtok_s(rest, " ", &rest);
-    if (token == NULL || strcmp(token, "ADD") != 0) {
+    
+    //Parse the command into tokens
+    num_tokens = parse_command(command, tokens, 100);
+     if (num_tokens < 0)
+     {
+         printf("Error parsing the command.\n");
+         return;
+     }
+    if (num_tokens < 3 || strcmp(tokens[0], "ADD") != 0) {
         printf("Invalid ADD command.\n");
-        return;
+         for(int i=0; i<num_tokens; i++)
+             free(tokens[i]);
+         return;
     }
+    
+    strncpy(table_name, tokens[1], MAX_TABLE_NAME_LENGTH-1);
+      table_name[MAX_TABLE_NAME_LENGTH-1] = '\0';
 
-    // Extract the table name
-    token = strtok_s(rest, " ", &rest);
-    if (token == NULL) {
-        printf("Invalid ADD command. Missing table name.\n");
-        return;
-    }
-    strcpy(table_name, token);
 
-    // Parse the rest of the command into tokens
-    while ((token = strtok_s(rest, " ", &rest)) != NULL && num_tokens < 50) {
-        tokens[num_tokens++] = token;
-    }
-
-    // Validate the number of tokens
     Table* table = find_table(table_name);
     if (table == NULL) {
         printf("Error: Table '%s' not found.\n", table_name);
+        for(int i=0; i<num_tokens; i++)
+             free(tokens[i]);
         return;
     }
 
-    if (num_tokens != table->num_columns * 2) {
+      if ((num_tokens-2) != table->num_columns * 2) {
         printf("Error: Incorrect number of column-value pairs. Expected %d pairs.\n", table->num_columns);
+        for(int i=0; i<num_tokens; i++)
+             free(tokens[i]);
         return;
     }
 
-    // Dynamically allocate memory for ordered_values
     char** ordered_values = (char**)malloc(table->num_columns * sizeof(char*));
     if (!ordered_values) {
         perror("Memory allocation failed");
+         for(int i=0; i<num_tokens; i++)
+             free(tokens[i]);
         return;
     }
-
-    // Extract column-value pairs
     for (int i = 0; i < table->num_columns; i++) {
-        ordered_values[i] = tokens[i * 2 + 1]; // Values are at odd indices
+         ordered_values[i] = tokens[i * 2 + 3];
     }
 
-    // Validate constraints
+     // Validate constraints
     for (int i = 0; i < table->num_columns; i++) {
         if (table->columns[i].is_not_null && (ordered_values[i] == NULL || strlen(ordered_values[i]) == 0)) {
             printf("Error: Column '%s' cannot be NULL.\n", table->columns[i].name);
-            free(ordered_values); // Free allocated memory before returning
+            free(ordered_values);
+             for(int i=0; i<num_tokens; i++)
+                free(tokens[i]);
             return;
         }
 
-        if (table->columns[i].is_unique) {
+       if (table->columns[i].is_unique) {
             Record* current = table->head;
-            while (current != NULL) {
+             while (current != NULL) {
                 if (strcmp(table->columns[i].type, "INTEGER") == 0) {
-                    if (atoi(ordered_values[i]) == *(int*)current->data[i]) {
+                     if (atoi(ordered_values[i]) == *(int*)current->data[i]) {
                         printf("Error: Duplicate value for unique column '%s'.\n", table->columns[i].name);
-                        free(ordered_values); // Free allocated memory before returning
+                        free(ordered_values);
+                        for(int i=0; i<num_tokens; i++)
+                            free(tokens[i]);
                         return;
                     }
                 } else if (strcmp(table->columns[i].type, "STRING") == 0) {
                     if (strcmp(ordered_values[i], (char*)current->data[i]) == 0) {
                         printf("Error: Duplicate value for unique column '%s'.\n", table->columns[i].name);
-                        free(ordered_values); // Free allocated memory before returning
+                        free(ordered_values);
+                        for(int i=0; i<num_tokens; i++)
+                            free(tokens[i]);
                         return;
                     }
                 }
@@ -334,7 +380,9 @@ void add_record_cmd(const char* command) {
     Record* new_record = create_record(table, ordered_values);
     if (new_record == NULL) {
         printf("Error: Failed to create record.\n");
-        free(ordered_values); // Free allocated memory before returning
+         free(ordered_values);
+         for(int i=0; i<num_tokens; i++)
+             free(tokens[i]);
         return;
     }
 
@@ -358,196 +406,318 @@ void add_record_cmd(const char* command) {
 
     // Free the dynamically allocated memory
     free(ordered_values);
+    for(int i=0; i<num_tokens; i++)
+         free(tokens[i]);
 }
+
 // DELETE <table_name> <column_name> <value>
 void delete_record_cmd(const char* command) {
     char table_name[MAX_TABLE_NAME_LENGTH];
     char column_name[MAX_COLUMN_NAME_LENGTH];
     char value[MAX_STRING_LENGTH];
-    if (sscanf(command, "DELETE %s %s %s", table_name, column_name, value) == 3) {
-        Table* table = find_table(table_name);
-        if (table == NULL) {
-            printf("Error: Table '%s' not found.\n", table_name);
-            return;
-        }
-        int col_index = find_column_index(table, column_name);
-        if (col_index == -1) {
-            printf("Error: Column '%s' not found in table '%s'.\n", column_name, table_name);
-            return;
-        }
-
-        Record* current = table->head;
-        while (current != NULL) {
-            int match = 0;
-            if (strcmp(table->columns[col_index].type, "INTEGER") == 0) {
-                if (atoi(value) == *(int*)current->data[col_index]) {
-                    match = 1;
-                }
-            } else if (strcmp(table->columns[col_index].type, "STRING") == 0) {
-                if (strcmp(value, (char*)current->data[col_index]) == 0) {
-                    match = 1;
-                }
-            }
-
-            if (match) {
-                 if (current->prev != NULL) {
-                    current->prev->next = current->next;
-                } else {
-                    table->head = current->next;
-                }
-
-                if (current->next != NULL) {
-                    current->next->prev = current->prev;
-                } else {
-                    table->tail = current->prev;
-                }
-
-                Record* temp = current->next;
-                free_record_data(table, current);
-                current = temp;
-            } else {
-                current = current->next;
-            }
-        }
-        printf("Records deleted from table '%s'.\n", table_name);
-    } else {
-        printf("Invalid DELETE command.\n");
+    
+    char* tokens[5];
+    int num_tokens = 0;
+    
+    // Parse the command into tokens
+    num_tokens = parse_command(command, tokens, 5);
+    if(num_tokens < 0)
+    {
+     printf("Error parsing the command\n");
+     return;
     }
+
+    if (num_tokens != 4 || strcmp(tokens[0], "DELETE") != 0) {
+        printf("Invalid DELETE command. Usage: DELETE <table_name> <column_name> <value>\n");
+         for(int i=0; i<num_tokens; i++)
+             free(tokens[i]);
+        return;
+    }
+     strncpy(table_name, tokens[1], MAX_TABLE_NAME_LENGTH-1);
+     table_name[MAX_TABLE_NAME_LENGTH-1] = '\0';
+    strncpy(column_name, tokens[2], MAX_COLUMN_NAME_LENGTH-1);
+      column_name[MAX_COLUMN_NAME_LENGTH-1] = '\0';
+    strncpy(value, tokens[3], MAX_STRING_LENGTH-1);
+    value[MAX_STRING_LENGTH-1] = '\0';
+
+    Table* table = find_table(table_name);
+    if (table == NULL) {
+        printf("Error: Table '%s' not found.\n", table_name);
+         for(int i=0; i<num_tokens; i++)
+             free(tokens[i]);
+        return;
+    }
+    int col_index = find_column_index(table, column_name);
+    if (col_index == -1) {
+        printf("Error: Column '%s' not found in table '%s'.\n", column_name, table_name);
+        for(int i=0; i<num_tokens; i++)
+             free(tokens[i]);
+        return;
+    }
+
+    Record* current = table->head;
+    while (current != NULL) {
+         int match = 0;
+         if (strcmp(table->columns[col_index].type, "INTEGER") == 0) {
+             if (atoi(value) == *(int*)current->data[col_index]) {
+                 match = 1;
+             }
+         } else if (strcmp(table->columns[col_index].type, "STRING") == 0) {
+             if (strcmp(value, (char*)current->data[col_index]) == 0) {
+                 match = 1;
+             }
+         }
+
+        if (match) {
+            if (current->prev != NULL) {
+                current->prev->next = current->next;
+            } else {
+                table->head = current->next;
+            }
+
+            if (current->next != NULL) {
+                current->next->prev = current->prev;
+            } else {
+                table->tail = current->prev;
+            }
+
+            Record* temp = current->next;
+            free_record_data(table, current);
+            current = temp;
+        } else {
+            current = current->next;
+        }
+    }
+    printf("Records deleted from table '%s'.\n", table_name);
+    for(int i=0; i<num_tokens; i++)
+       free(tokens[i]);
 }
 
-// UPDATE <table_name> <column_name> <old_value> <new_value>
 // UPDATE <table_name> <column_name> <old_value> <new_value>
 void update_record_cmd(const char* command) {
     char table_name[MAX_TABLE_NAME_LENGTH];
     char column_name[MAX_COLUMN_NAME_LENGTH];
     char old_value[MAX_STRING_LENGTH];
     char new_value[MAX_STRING_LENGTH];
-    if (sscanf(command, "UPDATE %s %s %s %s", table_name, column_name, old_value, new_value) == 4) {
-        Table* table = find_table(table_name);
-        if (table == NULL) {
-            printf("Error: Table '%s' not found.\n", table_name);
-            return;
-        }
-        int col_index = find_column_index(table, column_name);
-        if (col_index == -1) {
-            printf("Error: Column '%s' not found in table '%s'.\n", column_name, table_name);
-            return;
-        }
+    char* tokens[6];
+    int num_tokens = 0;
 
-        // Validate new value for general-course-score and core-course-score
-        if (strcmp(column_name, "general-course-score") == 0 || strcmp(column_name, "core-course-score") == 0) {
+    // Parse the command into tokens
+    num_tokens = parse_command(command, tokens, 6);
+    if (num_tokens < 0)
+    {
+        printf("Error parsing the command\n");
+        return;
+    }
+
+    if (num_tokens != 5 || strcmp(tokens[0], "UPDATE") != 0) {
+        printf("Invalid UPDATE command.\n");
+         for(int i=0; i<num_tokens; i++)
+             free(tokens[i]);
+        return;
+    }
+    strncpy(table_name, tokens[1], MAX_TABLE_NAME_LENGTH-1);
+      table_name[MAX_TABLE_NAME_LENGTH-1] = '\0';
+    strncpy(column_name, tokens[2], MAX_COLUMN_NAME_LENGTH - 1);
+    column_name[MAX_COLUMN_NAME_LENGTH - 1] = '\0';
+    strncpy(old_value, tokens[3], MAX_STRING_LENGTH - 1);
+      old_value[MAX_STRING_LENGTH - 1] = '\0';
+    strncpy(new_value, tokens[4], MAX_STRING_LENGTH -1);
+     new_value[MAX_STRING_LENGTH - 1] = '\0';
+
+    Table* table = find_table(table_name);
+    if (table == NULL) {
+        printf("Error: Table '%s' not found.\n", table_name);
+        for(int i=0; i<num_tokens; i++)
+            free(tokens[i]);
+        return;
+    }
+    int col_index = find_column_index(table, column_name);
+    if (col_index == -1) {
+        printf("Error: Column '%s' not found in table '%s'.\n", column_name, table_name);
+        for(int i=0; i<num_tokens; i++)
+            free(tokens[i]);
+        return;
+    }
+
+      // Validate new value for general-course-score and core-course-score
+    if (strcmp(column_name, "general-course-score") == 0 || strcmp(column_name, "core-course-score") == 0) {
             int new_score = atoi(new_value);
             if (!is_valid_score(new_score)) {
                 printf("Warning: The entered value for %s (%d) is not in the right range (0 to 20).\n", column_name, new_score);
                 printf("Use 'HELP' for more information.\n");
+                for(int i=0; i<num_tokens; i++)
+                   free(tokens[i]);
                 return;
             }
         }
 
-        Record* current = table->head;
-        while (current != NULL) {
-            int match = 0;
-            if (strcmp(table->columns[col_index].type, "INTEGER") == 0) {
-                if (atoi(old_value) == *(int*)current->data[col_index]) {
-                    match = 1;
-                    *(int*)current->data[col_index] = atoi(new_value);
-                }
-            } else if (strcmp(table->columns[col_index].type, "STRING") == 0) {
-                if (strcmp(old_value, (char*)current->data[col_index]) == 0) {
-                    match = 1;
-                    strcpy((char*)current->data[col_index], new_value);
-                }
+    Record* current = table->head;
+    while (current != NULL) {
+         int match = 0;
+          if (strcmp(table->columns[col_index].type, "INTEGER") == 0) {
+             if (atoi(old_value) == *(int*)current->data[col_index]) {
+                 match = 1;
+                 *(int*)current->data[col_index] = atoi(new_value);
+             }
+         } else if (strcmp(table->columns[col_index].type, "STRING") == 0) {
+             if (strcmp(old_value, (char*)current->data[col_index]) == 0) {
+                 match = 1;
+                 strncpy((char*)current->data[col_index], new_value, MAX_STRING_LENGTH - 1);
+                 ((char*)current->data[col_index])[MAX_STRING_LENGTH - 1] = '\0';
             }
-            current = current->next;
-        }
-        printf("Records updated in table '%s'.\n", table_name);
-    } else {
-        printf("Invalid UPDATE command.\n");
+         }
+       current = current->next;
     }
+    printf("Records updated in table '%s'.\n", table_name);
+     for(int i=0; i<num_tokens; i++)
+        free(tokens[i]);
 }
-
 
 // SELECT <table_name> <column_name> <value> [SORTED]
 void select_records_cmd(const char* command) {
     char table_name[MAX_TABLE_NAME_LENGTH];
     char column_name[MAX_COLUMN_NAME_LENGTH];
     char value[MAX_STRING_LENGTH];
-    char condition[10] = ""; // New: To handle conditions like AND, OR, NOT
+    char condition[10] = "";
     char second_column_name[MAX_COLUMN_NAME_LENGTH];
     char second_value[MAX_STRING_LENGTH];
     char sorted[10] = "";
+     char* tokens[20];
+    int num_tokens = 0;
 
-    // Parse the command
-    if (sscanf(command, "SELECT %s %s %s %s %s %s %s", table_name, column_name, value, condition, second_column_name, second_value, sorted) >= 3) {
-        Table* table = find_table(table_name);
-        if (table == NULL) {
-            printf("Error: Table '%s' not found.\n", table_name);
-            return;
+    // Parse the command into tokens
+    num_tokens = parse_command(command, tokens, 20);
+    if (num_tokens < 0)
+    {
+        printf("Error parsing the command.\n");
+        return;
+    }
+     if (num_tokens < 4 || strcmp(tokens[0], "SELECT") != 0)
+    {
+      printf("Invalid SELECT command. Usage: SELECT <table_name> <column_name> <value> [AND/OR/NOT <column_name> <value>] [SORTED]\n");
+       for (int i = 0; i < num_tokens; i++)
+            free(tokens[i]);
+      return;
+    }
+    strncpy(table_name, tokens[1], MAX_TABLE_NAME_LENGTH-1);
+     table_name[MAX_TABLE_NAME_LENGTH-1] = '\0';
+    strncpy(column_name, tokens[2], MAX_COLUMN_NAME_LENGTH -1);
+     column_name[MAX_COLUMN_NAME_LENGTH-1] = '\0';
+    strncpy(value, tokens[3], MAX_STRING_LENGTH - 1);
+    value[MAX_STRING_LENGTH - 1] = '\0';
+
+    int condition_index = -1;
+    int sorted_index = -1;
+      for(int i=4; i < num_tokens; i++)
+      {
+        if(strcmp(tokens[i], "AND")==0 || strcmp(tokens[i], "OR")==0 || strcmp(tokens[i], "NOT")==0)
+        {
+          condition_index = i;
+          if (i + 2 < num_tokens) {
+                strncpy(second_column_name, tokens[i + 1], MAX_COLUMN_NAME_LENGTH-1);
+                 second_column_name[MAX_COLUMN_NAME_LENGTH-1] = '\0';
+                strncpy(second_value, tokens[i + 2], MAX_STRING_LENGTH - 1);
+                  second_value[MAX_STRING_LENGTH - 1] = '\0';
+              strncpy(condition, tokens[i], 9);
+              condition[9] = '\0';
+            } else {
+               printf("Invalid SELECT command. Missing second column or value for condition.\n");
+               for (int j = 0; j < num_tokens; j++)
+                   free(tokens[j]);
+               return;
+            }
+
+            break;
         }
-
-        int col_index = find_column_index(table, column_name);
-        int second_col_index = -1;
+        if(strcmp(tokens[i], "SORTED")==0)
+        {
+           sorted_index= i;
+            strncpy(sorted, tokens[i], 9);
+             sorted[9] = '\0';
+             break;
+        }
+      }
+    
+    Table* table = find_table(table_name);
+     if (table == NULL) {
+         printf("Error: Table '%s' not found.\n", table_name);
+          for (int i = 0; i < num_tokens; i++)
+              free(tokens[i]);
+         return;
+     }
+    
+    int col_index = find_column_index(table, column_name);
+     if (col_index == -1) {
+         printf("Error: Column '%s' not found in table '%s'.\n", column_name, table_name);
+           for (int i = 0; i < num_tokens; i++)
+               free(tokens[i]);
+         return;
+    }
+    int second_col_index = -1;
         if (strlen(condition) > 0) {
             second_col_index = find_column_index(table, second_column_name);
             if (second_col_index == -1) {
                 printf("Error: Column '%s' not found in table '%s'.\n", second_column_name, table_name);
+                 for (int i = 0; i < num_tokens; i++)
+                    free(tokens[i]);
                 return;
             }
         }
 
-        Record* matching_records_head = NULL;
-        Record* matching_records_tail = NULL;
-        Record* current = table->head;
+    Record* matching_records_head = NULL;
+    Record* matching_records_tail = NULL;
+    Record* current = table->head;
 
-        // Step 1: Find all matching records
-        while (current != NULL) {
+    // Step 1: Find all matching records
+     while (current != NULL) {
             int match = 0;
             if (strcmp(table->columns[col_index].type, "INTEGER") == 0) {
                 if (atoi(value) == *(int*)current->data[col_index]) {
                     match = 1;
                 }
             } else if (strcmp(table->columns[col_index].type, "STRING") == 0) {
-                if (strcmp(value, (char*)current->data[col_index]) == 0) {
+                 if (strcmp(value, (char*)current->data[col_index]) == 0) {
                     match = 1;
                 }
             }
-
+            
             // Handle AND, OR, NOT conditions
             if (strlen(condition) > 0) {
                 int second_match = 0;
-                if (strcmp(table->columns[second_col_index].type, "INTEGER") == 0) {
-                    if (atoi(second_value) == *(int*)current->data[second_col_index]) {
-                        second_match = 1;
+                 if (strcmp(table->columns[second_col_index].type, "INTEGER") == 0) {
+                     if (atoi(second_value) == *(int*)current->data[second_col_index]) {
+                         second_match = 1;
                     }
-                } else if (strcmp(table->columns[second_col_index].type, "STRING") == 0) {
+                 } else if (strcmp(table->columns[second_col_index].type, "STRING") == 0) {
                     if (strcmp(second_value, (char*)current->data[second_col_index]) == 0) {
                         second_match = 1;
                     }
-                }
+                 }
 
-                if (strcmp(condition, "AND") == 0) {
+               if (strcmp(condition, "AND") == 0) {
                     match = match && second_match;
                 } else if (strcmp(condition, "OR") == 0) {
                     match = match || second_match;
-                } else if (strcmp(condition, "NOT") == 0) {
-                    match = match && !second_match;
+                 } else if (strcmp(condition, "NOT") == 0) {
+                   match = match && !second_match;
                 }
             }
 
-            if (match) {
-                Record* new_match = (Record*)malloc(sizeof(Record));
+           if (match) {
+                 Record* new_match = (Record*)malloc(sizeof(Record));
                 if (!new_match) {
                     perror("Memory allocation failed");
                     exit(EXIT_FAILURE);
                 }
-                memcpy(new_match, current, sizeof(Record));
+               memcpy(new_match, current, sizeof(Record));
                 new_match->next = NULL;
                 new_match->prev = NULL;
 
-                if (matching_records_head == NULL) {
+               if (matching_records_head == NULL) {
                     matching_records_head = new_match;
                     matching_records_tail = new_match;
-                } else {
+               } else {
                     matching_records_tail->next = new_match;
                     new_match->prev = matching_records_tail;
                     matching_records_tail = new_match;
@@ -555,16 +725,16 @@ void select_records_cmd(const char* command) {
             }
             current = current->next;
         }
+      
+      printf("Selected records from table '%s':\n", table_name);
 
-        printf("Selected records from table '%s':\n", table_name);
-
-        // Step 2: Sort the records by student-number if SORTED is specified
+       // Step 2: Sort the records by student-number if SORTED is specified
         if (strcmp(sorted, "SORTED") == 0) {
             // Sort by student-number (column index 0)
-            matching_records_head = merge_sort(matching_records_head, 0, table);
+             matching_records_head = merge_sort(matching_records_head, 0, table);
         }
 
-        // Step 3: Print the records in a table format
+       // Step 3: Print the records in a table format
         if (matching_records_head != NULL) {
             // Print table headers
             for (int i = 0; i < table->num_columns; i++) {
@@ -572,110 +742,230 @@ void select_records_cmd(const char* command) {
             }
             printf("\n");
 
-            // Print separator line
+           // Print separator line
             for (int i = 0; i < table->num_columns; i++) {
-                printf("--------------------");
+                 printf("--------------------");
             }
             printf("\n");
 
             // Print records
-            Record* print_current = matching_records_head;
-            while (print_current != NULL) {
+             Record* print_current = matching_records_head;
+             while (print_current != NULL) {
                 for (int i = 0; i < table->num_columns; i++) {
-                    if (strcmp(table->columns[i].type, "INTEGER") == 0) {
-                        printf("%-20d", *(int*)print_current->data[i]);
-                    } else {
-                        printf("%-20s", (char*)print_current->data[i]);
+                     if (strcmp(table->columns[i].type, "INTEGER") == 0) {
+                         printf("%-20d", *(int*)print_current->data[i]);
+                   } else {
+                         printf("%-20s", (char*)print_current->data[i]);
                     }
                 }
-                printf("\n");
-                print_current = print_current->next;
+                 printf("\n");
+                 print_current = print_current->next;
             }
         } else {
-            printf("No matching records found.\n");
+             printf("No matching records found.\n");
         }
-
-        // Step 4: Free the temporary linked list of matching records
+     // Step 4: Free the temporary linked list of matching records
         Record* temp = matching_records_head;
         while (temp != NULL) {
-            Record* next = temp->next;
+             Record* next = temp->next;
             free(temp);
             temp = next;
         }
-
-    } else {
-        printf("Invalid SELECT command.\n");
-    }
+        for (int i = 0; i < num_tokens; i++)
+           free(tokens[i]);
 }
-
-// SAVE <table_name> <filename> CSV
+// SAVE <table_name> <filename>
 void save_cmd(const char* command) {
     char table_name[MAX_TABLE_NAME_LENGTH];
     char filename[256];
-    if (sscanf(command, "SAVE %s %s", table_name, filename) == 2) {
-        Table* table = find_table(table_name);
+    
+    char* tokens[5];
+    int num_tokens = 0;
+    
+     // Parse the command into tokens
+    num_tokens = parse_command(command, tokens, 5);
+     if (num_tokens < 0)
+    {
+         printf("Error parsing the command.\n");
+         return;
+     }
+    if (num_tokens != 4 || strcmp(tokens[0], "SAVE") != 0)
+     {
+      printf("Invalid SAVE command. Usage: SAVE <table_name> <filename> CSV\n");
+       for (int i = 0; i < num_tokens; i++)
+          free(tokens[i]);
+        return;
+     }
+
+    strncpy(table_name, tokens[1], MAX_TABLE_NAME_LENGTH - 1);
+      table_name[MAX_TABLE_NAME_LENGTH - 1] = '\0';
+    strncpy(filename, tokens[2], 255);
+    filename[255] = '\0';
+
+    if (strcmp(tokens[3], "CSV")!=0)
+    {
+         printf("Invalid SAVE command. Usage: SAVE <table_name> <filename> CSV\n");
+        for (int i = 0; i < num_tokens; i++)
+            free(tokens[i]);
+        return;
+    }
+     Table* table = find_table(table_name);
         if (table == NULL) {
-            printf("Error: Table '%s' not found.\n", table_name);
+           printf("Error: Table '%s' not found.\n", table_name);
+            for (int i = 0; i < num_tokens; i++)
+                free(tokens[i]);
             return;
         }
-        save_to_csv(filename, table);
-    } else {
-        printf("Invalid SAVE command. Usage: SAVE <table_name> <filename>\n");
-    }
+        
+      save_to_csv(filename, table);
+      for (int i = 0; i < num_tokens; i++)
+            free(tokens[i]);
 }
 
-// LOAD <table_name> <filename> CSV
+// LOAD <table_name> <filename>
 void load_cmd(const char* command) {
-    char table_name[MAX_TABLE_NAME_LENGTH];
+     char table_name[MAX_TABLE_NAME_LENGTH];
     char filename[256];
-    if (sscanf(command, "LOAD %s %s", table_name, filename) == 2) {
-        Table* table = find_table(table_name);
+    char* tokens[5];
+    int num_tokens = 0;
+
+     // Parse the command into tokens
+    num_tokens = parse_command(command, tokens, 5);
+     if (num_tokens < 0)
+    {
+        printf("Error parsing the command.\n");
+        return;
+    }
+    if (num_tokens != 4 || strcmp(tokens[0], "LOAD") != 0) {
+        printf("Invalid LOAD command. Usage: LOAD <table_name> <filename> CSV\n");
+        for (int i = 0; i < num_tokens; i++)
+            free(tokens[i]);
+        return;
+    }
+    strncpy(table_name, tokens[1], MAX_TABLE_NAME_LENGTH-1);
+      table_name[MAX_TABLE_NAME_LENGTH-1] = '\0';
+    strncpy(filename, tokens[2], 255);
+    filename[255] = '\0';
+    
+    if (strcmp(tokens[3], "CSV")!=0)
+    {
+         printf("Invalid LOAD command. Usage: LOAD <table_name> <filename> CSV\n");
+         for (int i = 0; i < num_tokens; i++)
+            free(tokens[i]);
+        return;
+    }
+
+     Table* table = find_table(table_name);
         if (table == NULL) {
-            printf("Error: Table '%s' not found.\n", table_name);
+           printf("Error: Table '%s' not found.\n", table_name);
+            for (int i = 0; i < num_tokens; i++)
+                free(tokens[i]);
             return;
         }
         load_from_csv(filename, table);
-    } else {
-        printf("Invalid LOAD command. Usage: LOAD <table_name> <filename>\n");
-    }
+      for (int i = 0; i < num_tokens; i++)
+            free(tokens[i]);
 }
+
 void select_records_where_cmd(const char* command) {
-    char table_name[MAX_TABLE_NAME_LENGTH];
-    char condition[256] = ""; // To store the WHERE condition
-    char sorted[10] = ""; // For SORTED keyword
+     char table_name[MAX_TABLE_NAME_LENGTH];
+    char condition[256] = "";
+    char sorted[10] = "";
+    char* tokens[10];
+    int num_tokens = 0;
 
-    // Parse the command
-    if (sscanf(command, "SELECT %s WHERE %[^\n] %s", table_name, condition, sorted) >= 2) {
-        Table* table = find_table(table_name);
-        if (table == NULL) {
-            printf("Error: Table '%s' not found.\n", table_name);
-            return;
+    // Parse the command into tokens
+    num_tokens = parse_command(command, tokens, 10);
+    if (num_tokens < 0)
+    {
+         printf("Error parsing the command.\n");
+         return;
+    }
+    if (num_tokens < 4 || strcmp(tokens[0], "SELECT") != 0 || strcmp(tokens[2], "WHERE")!=0 ) {
+        printf("Invalid SELECT WHERE command.\n");
+        for (int i = 0; i < num_tokens; i++)
+            free(tokens[i]);
+        return;
+    }
+    strncpy(table_name, tokens[1], MAX_TABLE_NAME_LENGTH-1);
+      table_name[MAX_TABLE_NAME_LENGTH-1] = '\0';
+
+     // Reconstruct the condition string with remaining tokens
+        int condition_start_index = 3;
+        int sorted_index = -1;
+        for (int i = 3; i < num_tokens; i++)
+        {
+          if(strcmp(tokens[i], "SORTED")==0)
+          {
+            sorted_index = i;
+            break;
+          }
         }
+         
+        int len = 0;
+          for (int i = condition_start_index; i < num_tokens; i++)
+        {
+            if (sorted_index !=-1 && i == sorted_index)
+               break;
+            len+=strlen(tokens[i]);
+             if(i!=condition_start_index)
+                len++;
+        }
+         char* condition_ptr = condition;
+        for (int i = condition_start_index; i < num_tokens; i++)
+        {
+           if (sorted_index != -1 && i == sorted_index)
+            {
+                 break;
+            }
+            strncpy(condition_ptr,tokens[i],255 - (condition_ptr-condition));
+            condition_ptr+= strlen(tokens[i]);
+            if(i!=condition_start_index)
+            {
+                 strncpy(condition_ptr," ", 1);
+                condition_ptr+=1;
+            }
+        }
+         if(sorted_index !=-1)
+        {
+           strncpy(sorted, tokens[sorted_index],9);
+             sorted[9] = '\0';
+        }
+    Table* table = find_table(table_name);
+    if (table == NULL) {
+        printf("Error: Table '%s' not found.\n", table_name);
+         for (int i = 0; i < num_tokens; i++)
+            free(tokens[i]);
+        return;
+    }
+        
+      char column_name[MAX_COLUMN_NAME_LENGTH];
+       char operator[3];
+      char value[MAX_STRING_LENGTH];
 
-        // Parse the condition (e.g., "score > 85")
-        char column_name[MAX_COLUMN_NAME_LENGTH];
-        char operator[3]; // Supports =, !=, >, <, >=, <=
-        char value[MAX_STRING_LENGTH];
-
-        if (sscanf(condition, "%s %s %s", column_name, operator, value) != 3) {
+      if (sscanf(condition, "%s %s %s", column_name, operator, value) != 3) {
             printf("Error: Invalid WHERE condition.\n");
+            for (int i = 0; i < num_tokens; i++)
+                free(tokens[i]);
             return;
         }
 
         int col_index = find_column_index(table, column_name);
         if (col_index == -1) {
             printf("Error: Column '%s' not found in table '%s'.\n", column_name, table_name);
+            for (int i = 0; i < num_tokens; i++)
+                free(tokens[i]);
             return;
         }
-
-        // Find matching records
+        
+     // Find matching records
         Record* matching_records_head = NULL;
         Record* matching_records_tail = NULL;
         Record* current = table->head;
 
         while (current != NULL) {
             int match = 0;
-            if (strcmp(table->columns[col_index].type, "INTEGER") == 0) {
+             if (strcmp(table->columns[col_index].type, "INTEGER") == 0) {
                 int record_value = *(int*)current->data[col_index];
                 int condition_value = atoi(value);
 
@@ -686,11 +976,11 @@ void select_records_where_cmd(const char* command) {
                 else if (strcmp(operator, ">=") == 0 && record_value >= condition_value) match = 1;
                 else if (strcmp(operator, "<=") == 0 && record_value <= condition_value) match = 1;
             } else if (strcmp(table->columns[col_index].type, "STRING") == 0) {
-                if (strcmp(operator, "=") == 0 && strcmp((char*)current->data[col_index], value) == 0) match = 1;
+                 if (strcmp(operator, "=") == 0 && strcmp((char*)current->data[col_index], value) == 0) match = 1;
                 else if (strcmp(operator, "!=") == 0 && strcmp((char*)current->data[col_index], value) != 0) match = 1;
             }
-
-            if (match) {
+            
+             if (match) {
                 Record* new_match = (Record*)malloc(sizeof(Record));
                 if (!new_match) {
                     perror("Memory allocation failed");
@@ -710,17 +1000,17 @@ void select_records_where_cmd(const char* command) {
                 }
             }
             current = current->next;
-        }
-
+         }
+    
         // Sort records if SORTED is specified
         if (strcmp(sorted, "SORTED") == 0) {
-            matching_records_head = merge_sort(matching_records_head, 0, table);
+             matching_records_head = merge_sort(matching_records_head, 0, table);
         }
-
+       
         // Print matching records in a table format
-        printf("Selected records from table '%s':\n", table_name);
-
-        if (matching_records_head != NULL) {
+       printf("Selected records from table '%s':\n", table_name);
+       
+         if (matching_records_head != NULL) {
             // Print table headers
             for (int i = 0; i < table->num_columns; i++) {
                 printf("%-20s", table->columns[i].name);
@@ -753,14 +1043,14 @@ void select_records_where_cmd(const char* command) {
         // Free temporary linked list
         Record* temp = matching_records_head;
         while (temp != NULL) {
-            Record* next = temp->next;
+             Record* next = temp->next;
             free(temp);
-            temp = next;
+             temp = next;
         }
-    } else {
-        printf("Invalid SELECT WHERE command.\n");
-    }
+    for (int i = 0; i < num_tokens; i++)
+      free(tokens[i]);
 }
+
 
 void help() {
     printf("\nAvailable Commands:\n");
@@ -798,8 +1088,9 @@ void help() {
     printf("   - Example: UPDATE students score 85 90\n\n");
 
     // SELECT command
-    printf("7. SELECT <table_name> <column_name> <value> [SORTED]\n");
+     printf("7. SELECT <table_name> <column_name> <value> [AND/OR/NOT <column_name> <value>] [SORTED]\n");
     printf("   - Selects records from the specified table where the column matches the value.\n");
+      printf("   - AND, OR, NOT condtions are optional after the value\n");
     printf("   - Use the optional SORTED keyword to sort the results by student-number.\n");
     printf("   - Example: SELECT students score 85 SORTED\n\n");
 
@@ -820,7 +1111,7 @@ void help() {
     printf("    - Loads the specified table from a CSV file.\n");
     printf("    - Example: LOAD students data.csv\n\n");
 
-    // SAVE BINARY command
+     // SAVE BINARY command
     printf("11. SAVE BINARY <table_name> <filename>\n");
     printf("    - Saves the specified table to a binary file.\n");
     printf("    - Example: SAVE BINARY students data.bin\n\n");
