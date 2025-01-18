@@ -57,11 +57,18 @@ void load_from_csv(const char* filename, Table* table) {
     while (fgets(line, sizeof(line), file)) {
         char* token;
         char* rest = line;
-        char* values[table->num_columns];
-        int i = 0;
 
+        // Dynamically allocate memory for values
+        char** values = (char**)malloc(table->num_columns * sizeof(char*));
+        if (!values) {
+            perror("Memory allocation failed");
+            fclose(file);
+            return;
+        }
+
+        int i = 0;
         // Parse CSV line
-        while ((token = strtok_r(rest, ",\n", &rest))) {
+        while ((token = strtok_s(rest, ",\n", &rest))) {
             values[i++] = token;
         }
 
@@ -69,6 +76,7 @@ void load_from_csv(const char* filename, Table* table) {
         Record* new_record = create_record(table, values);
         if (new_record == NULL) {
             printf("Error: Failed to create record.\n");
+            free(values);  // Free allocated memory
             continue;
         }
 
@@ -80,6 +88,8 @@ void load_from_csv(const char* filename, Table* table) {
             table->head->prev = new_record;
             table->head = new_record;
         }
+
+        free(values);  // Free the dynamically allocated array
     }
 
     fclose(file);

@@ -116,7 +116,7 @@ void create_table_cmd(const char* command) {
         scanf("%s", column_name);
         printf("Enter column %d type (INTEGER or STRING): ", i + 1);
         scanf("%s", column_type);
-        printf("Enter column %d constraints (UNIQUE, PRIMARY KEY, NOT NULL): ", i + 1);
+        printf("Enter column %d constraints (UNIQUE, PRIMARY_KEY, NOT_NULL): ", i + 1);
         scanf("%s", constraints);
 
         if (strcmp(column_type, "INTEGER") != 0 && strcmp(column_type, "STRING") != 0) {
@@ -129,8 +129,8 @@ void create_table_cmd(const char* command) {
         strcpy(new_table->columns[i].name, column_name);
         strcpy(new_table->columns[i].type, column_type);
         new_table->columns[i].is_unique = (strstr(constraints, "UNIQUE") != NULL);
-        new_table->columns[i].is_primary_key = (strstr(constraints, "PRIMARY KEY") != NULL);
-        new_table->columns[i].is_not_null = (strstr(constraints, "NOT NULL") != NULL);
+        new_table->columns[i].is_primary_key = (strstr(constraints, "PRIMARY_KEY") != NULL);
+        new_table->columns[i].is_not_null = (strstr(constraints, "NOT_NULL") != NULL);
     }
 
     new_table->head = NULL;
@@ -564,19 +564,35 @@ void select_records_cmd(const char* command) {
             matching_records_head = merge_sort(matching_records_head, 0, table);
         }
 
-        // Step 3: Print the records
-        Record* print_current = matching_records_head;
-        while (print_current != NULL) {
+        // Step 3: Print the records in a table format
+        if (matching_records_head != NULL) {
+            // Print table headers
             for (int i = 0; i < table->num_columns; i++) {
-                printf("%s: ", table->columns[i].name);
-                if (strcmp(table->columns[i].type, "INTEGER") == 0) {
-                    printf("%d\t", *(int*)print_current->data[i]);
-                } else {
-                    printf("%s\t", (char*)print_current->data[i]);
-                }
+                printf("%-20s", table->columns[i].name);
             }
             printf("\n");
-            print_current = print_current->next;
+
+            // Print separator line
+            for (int i = 0; i < table->num_columns; i++) {
+                printf("--------------------");
+            }
+            printf("\n");
+
+            // Print records
+            Record* print_current = matching_records_head;
+            while (print_current != NULL) {
+                for (int i = 0; i < table->num_columns; i++) {
+                    if (strcmp(table->columns[i].type, "INTEGER") == 0) {
+                        printf("%-20d", *(int*)print_current->data[i]);
+                    } else {
+                        printf("%-20s", (char*)print_current->data[i]);
+                    }
+                }
+                printf("\n");
+                print_current = print_current->next;
+            }
+        } else {
+            printf("No matching records found.\n");
         }
 
         // Step 4: Free the temporary linked list of matching records
@@ -701,20 +717,37 @@ void select_records_where_cmd(const char* command) {
             matching_records_head = merge_sort(matching_records_head, 0, table);
         }
 
-        // Print matching records
+        // Print matching records in a table format
         printf("Selected records from table '%s':\n", table_name);
-        Record* print_current = matching_records_head;
-        while (print_current != NULL) {
+
+        if (matching_records_head != NULL) {
+            // Print table headers
             for (int i = 0; i < table->num_columns; i++) {
-                printf("%s: ", table->columns[i].name);
-                if (strcmp(table->columns[i].type, "INTEGER") == 0) {
-                    printf("%d\t", *(int*)print_current->data[i]);
-                } else {
-                    printf("%s\t", (char*)print_current->data[i]);
-                }
+                printf("%-20s", table->columns[i].name);
             }
             printf("\n");
-            print_current = print_current->next;
+
+            // Print separator line
+            for (int i = 0; i < table->num_columns; i++) {
+                printf("--------------------");
+            }
+            printf("\n");
+
+            // Print records
+            Record* print_current = matching_records_head;
+            while (print_current != NULL) {
+                for (int i = 0; i < table->num_columns; i++) {
+                    if (strcmp(table->columns[i].type, "INTEGER") == 0) {
+                        printf("%-20d", *(int*)print_current->data[i]);
+                    } else {
+                        printf("%-20s", (char*)print_current->data[i]);
+                    }
+                }
+                printf("\n");
+                print_current = print_current->next;
+            }
+        } else {
+            printf("No matching records found.\n");
         }
 
         // Free temporary linked list
@@ -770,22 +803,54 @@ void help() {
     printf("   - Use the optional SORTED keyword to sort the results by student-number.\n");
     printf("   - Example: SELECT students score 85 SORTED\n\n");
 
-    // SAVE command
-    printf("8. SAVE <table_name> <filename>\n");
+    // SELECT WHERE command
+    printf("8. SELECT <table_name> WHERE <condition> [SORTED]\n");
+    printf("   - Selects records from the specified table based on a condition.\n");
+    printf("   - Conditions can include comparisons like '=', '!=', '>', '<', '>=', '<='.\n");
+    printf("   - Use the optional SORTED keyword to sort the results by student-number.\n");
+    printf("   - Example: SELECT students WHERE score > 85 SORTED\n\n");
+
+    // SAVE CSV command
+    printf("9. SAVE <table_name> <filename> CSV\n");
     printf("   - Saves the specified table to a CSV file.\n");
     printf("   - Example: SAVE students data.csv\n\n");
 
-    // LOAD command
-    printf("9. LOAD <table_name> <filename>\n");
-    printf("   - Loads the specified table from a CSV file.\n");
-    printf("   - Example: LOAD students data.csv\n\n");
+    // LOAD CSV command
+    printf("10. LOAD <table_name> <filename> CSV\n");
+    printf("    - Loads the specified table from a CSV file.\n");
+    printf("    - Example: LOAD students data.csv\n\n");
+
+    // SAVE BINARY command
+    printf("11. SAVE BINARY <table_name> <filename>\n");
+    printf("    - Saves the specified table to a binary file.\n");
+    printf("    - Example: SAVE BINARY students data.bin\n\n");
+
+    // LOAD BINARY command
+    printf("12. LOAD BINARY <table_name> <filename>\n");
+    printf("    - Loads the specified table from a binary file.\n");
+    printf("    - Example: LOAD BINARY students data.bin\n\n");
+
+    // BEGIN TRANSACTION command
+    printf("13. BEGIN\n");
+    printf("    - Starts a new transaction. All changes made after this command can be rolled back.\n");
+    printf("    - Example: BEGIN\n\n");
+
+    // COMMIT TRANSACTION command
+    printf("14. COMMIT\n");
+    printf("    - Commits the current transaction, saving all changes made since the last BEGIN.\n");
+    printf("    - Example: COMMIT\n\n");
+
+    // ROLLBACK TRANSACTION command
+    printf("15. ROLLBACK\n");
+    printf("    - Rolls back the current transaction, undoing all changes made since the last BEGIN.\n");
+    printf("    - Example: ROLLBACK\n\n");
 
     // HELP command
-    printf("10. HELP\n");
+    printf("16. HELP\n");
     printf("    - Displays this help message.\n\n");
 
     // EXIT command
-    printf("11. EXIT\n");
+    printf("17. EXIT\n");
     printf("    - Exits the program.\n\n");
 
     // Additional information

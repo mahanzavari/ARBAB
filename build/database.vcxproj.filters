@@ -1,34 +1,37 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="C:\Users\ASUS\Desktop\Augemnted-ARBAB\40231027\AUGMENTED_ARBAB\src\main.c">
+    <ClCompile Include="C:\Users\ASUS\Desktop\Augemnted-ARBAB\40231027\ARBAB\src\main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\ASUS\Desktop\Augemnted-ARBAB\40231027\AUGMENTED_ARBAB\src\table.c">
+    <ClCompile Include="C:\Users\ASUS\Desktop\Augemnted-ARBAB\40231027\ARBAB\src\table.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\ASUS\Desktop\Augemnted-ARBAB\40231027\AUGMENTED_ARBAB\src\record.c">
+    <ClCompile Include="C:\Users\ASUS\Desktop\Augemnted-ARBAB\40231027\ARBAB\src\record.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\ASUS\Desktop\Augemnted-ARBAB\40231027\AUGMENTED_ARBAB\src\hashmap.c">
+    <ClCompile Include="C:\Users\ASUS\Desktop\Augemnted-ARBAB\40231027\ARBAB\src\hashmap.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\ASUS\Desktop\Augemnted-ARBAB\40231027\AUGMENTED_ARBAB\src\rbtree.c">
+    <ClCompile Include="C:\Users\ASUS\Desktop\Augemnted-ARBAB\40231027\ARBAB\src\rbtree.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\ASUS\Desktop\Augemnted-ARBAB\40231027\AUGMENTED_ARBAB\src\command.c">
+    <ClCompile Include="C:\Users\ASUS\Desktop\Augemnted-ARBAB\40231027\ARBAB\src\command.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\ASUS\Desktop\Augemnted-ARBAB\40231027\AUGMENTED_ARBAB\src\utils.c">
+    <ClCompile Include="C:\Users\ASUS\Desktop\Augemnted-ARBAB\40231027\ARBAB\src\utils.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\ASUS\Desktop\Augemnted-ARBAB\40231027\ARBAB\src\file_io.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="C:\Users\ASUS\Desktop\Augemnted-ARBAB\40231027\AUGMENTED_ARBAB\CMakeLists.txt" />
+    <CustomBuild Include="C:\Users\ASUS\Desktop\Augemnted-ARBAB\40231027\ARBAB\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{478ED6D0-FCEF-37AB-848F-A88F5E6063DB}</UniqueIdentifier>
+      <UniqueIdentifier>{098CC716-0216-3C10-91E2-285E689E24C4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

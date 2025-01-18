@@ -1,6 +1,7 @@
 #ifndef FILE_IO_H
 #define FILE_IO_H
 
+#include "record.h"
 #include "table.h"
 
 // CSV functions

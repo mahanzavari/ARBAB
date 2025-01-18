@@ -3,12 +3,12 @@
 
 #include <stdio.h>
 #define _POSIX_C_SOURCE 200809L  // Add this line before including string.h
-#include <string.h>              // Ensure this is included in command.c
+#include <string.h>              
 #include <stdlib.h>
 #include "../include/command.h"
 #include "../include/hashmap.h"
 #include "../include/table.h"
-#include "../include/record.h"  // Include record.h for Record type
+#include "../include/record.h"  
 #include "../include/file_io.h"
 
 

@@ -6,7 +6,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)     # Enforce the C99 standard
 set(CMAKE_C_EXTENSIONS OFF)           # Disable compiler-specific extensions
 
 # Include directories
-include_directories(include)
+include_directories(${CMAKE_SOURCE_DIR}/include)
 
 # Source files
 set(SOURCE_FILES
@@ -17,6 +17,7 @@ set(SOURCE_FILES
     src/rbtree.c
     src/command.c
     src/utils.c
+    src/file_io.c  # Ensure file_io.c is included
 )
 
 # Create executable
