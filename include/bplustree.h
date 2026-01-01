@@ -7,8 +7,12 @@
 struct Record;
 
 // B+ Tree order (number of children per node)
-// For disk I/O optimization, this should align with disk block size
-#define BPTREE_ORDER 4
+// For disk I/O optimization, order should be large enough to match disk block size
+// Typical disk block is 4KB, with int keys (4 bytes) and pointers (8 bytes):
+// Node size = order * (4 + 8) + overhead ≈ 4096 bytes
+// Optimal order ≈ 341, but we use 100 for reasonable memory usage and good performance
+#define BPTREE_ORDER 100
+#define MIN_KEYS (BPTREE_ORDER / 2)
 // B plus Tree Node Struct
 typedef struct BPTreeNode {
     int* keys;                      // Array of keys
@@ -39,6 +43,13 @@ BPTreeNode* bptree_split_child(BPTreeNode* parent, int index, BPTreeNode* child)
 void bptree_insert_non_full(BPTreeNode* node, int key, struct Record* record);
 BPTreeNode* bptree_search_node(BPTreeNode* node, int key);
 int bptree_find_key_index(BPTreeNode* node, int key);
+void bptree_merge_nodes(BPTreeNode* parent, int idx, BPTreeNode* left, BPTreeNode* right);
+void bptree_borrow_from_left(BPTreeNode* node, int idx);
+void bptree_borrow_from_right(BPTreeNode* node, int idx);
+void bptree_delete_from_node(BPTreeNode* node, int key);
+
+// Bulk operations for performance
+void bptree_bulk_load(BPTree* tree, int* keys, struct Record** records, int count);
 
 // Range query support (useful for disk I/O optimization)
 struct Record** bptree_range_search(BPTree* tree, int start_key, int end_key, int* count);

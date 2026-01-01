@@ -271,32 +271,207 @@ struct Record** bptree_range_search(BPTree* tree, int start_key, int end_key, in
     return results;
 }
 
-// Delete a key from the B+ Tree (simplified version)
+// Delete a key from the B+ Tree (complete implementation with underflow handling)
 void bptree_delete(BPTree* tree, int key) {
     if (!tree || !tree->root) {
         return;
     }
     
-    // Find the leaf node containing the key
-    BPTreeNode* node = tree->root;
-    while (!node->is_leaf) {
-        int idx = bptree_find_key_index(node, key);
-        node = node->children[idx];
-    }
+    bptree_delete_from_node(tree->root, key);
     
-    // Find and remove the key from the leaf
-    int idx = bptree_find_key_index(node, key);
-    if (idx < node->num_keys && node->keys[idx] == key) {
-        // Shift keys and records
-        for (int i = idx; i < node->num_keys - 1; i++) {
-            node->keys[i] = node->keys[i + 1];
-            node->records[i] = node->records[i + 1];
+    // If root becomes empty after deletion, make its only child the new root
+    if (tree->root->num_keys == 0 && !tree->root->is_leaf) {
+        BPTreeNode* old_root = tree->root;
+        tree->root = tree->root->children[0];
+        if (tree->root) {
+            tree->root->parent = NULL;
         }
-        node->num_keys--;
+        free(old_root->keys);
+        free(old_root->children);
+        free(old_root->records);
+        free(old_root);
+    }
+}
+
+// Delete a key from a node (recursive)
+void bptree_delete_from_node(BPTreeNode* node, int key) {
+    int idx = bptree_find_key_index(node, key);
+    
+    if (node->is_leaf) {
+        // Delete from leaf node
+        if (idx < node->num_keys && node->keys[idx] == key) {
+            for (int i = idx; i < node->num_keys - 1; i++) {
+                node->keys[i] = node->keys[i + 1];
+                node->records[i] = node->records[i + 1];
+            }
+            node->num_keys--;
+        }
+    } else {
+        // Internal node: recurse to appropriate child
+        BPTreeNode* child = node->children[idx];
+        bptree_delete_from_node(child, key);
+        
+        // Handle underflow in child (only if it has a parent)
+        if (child->num_keys < MIN_KEYS && child->parent != NULL) {
+            // Try to borrow from left sibling
+            if (idx > 0 && node->children[idx - 1]->num_keys > MIN_KEYS) {
+                bptree_borrow_from_left(node, idx);
+            }
+            // Try to borrow from right sibling
+            else if (idx < node->num_keys && node->children[idx + 1]->num_keys > MIN_KEYS) {
+                bptree_borrow_from_right(node, idx);
+            }
+            // Merge with left sibling
+            else if (idx > 0) {
+                bptree_merge_nodes(node, idx - 1, node->children[idx - 1], child);
+            }
+            // Merge with right sibling
+            else if (idx < node->num_keys) {
+                bptree_merge_nodes(node, idx, child, node->children[idx + 1]);
+            }
+        }
+    }
+}
+
+// Borrow a key from the left sibling
+void bptree_borrow_from_left(BPTreeNode* parent, int idx) {
+    BPTreeNode* child = parent->children[idx];
+    BPTreeNode* left_sibling = parent->children[idx - 1];
+    
+    if (child->is_leaf) {
+        // Shift all keys and records in child to the right
+        for (int i = child->num_keys; i > 0; i--) {
+            child->keys[i] = child->keys[i - 1];
+            child->records[i] = child->records[i - 1];
+        }
+        
+        // Move the last key from left sibling to child
+        child->keys[0] = left_sibling->keys[left_sibling->num_keys - 1];
+        child->records[0] = left_sibling->records[left_sibling->num_keys - 1];
+        child->num_keys++;
+        left_sibling->num_keys--;
+        
+        // Update parent key
+        parent->keys[idx - 1] = child->keys[0];
+    } else {
+        // Shift all keys and children in child to the right
+        for (int i = child->num_keys; i > 0; i--) {
+            child->keys[i] = child->keys[i - 1];
+        }
+        for (int i = child->num_keys + 1; i > 0; i--) {
+            child->children[i] = child->children[i - 1];
+        }
+        
+        // Move key from parent to child
+        child->keys[0] = parent->keys[idx - 1];
+        child->children[0] = left_sibling->children[left_sibling->num_keys];
+        if (child->children[0]) {
+            child->children[0]->parent = child;
+        }
+        child->num_keys++;
+        
+        // Move key from left sibling to parent
+        parent->keys[idx - 1] = left_sibling->keys[left_sibling->num_keys - 1];
+        left_sibling->num_keys--;
+    }
+}
+
+// Borrow a key from the right sibling
+void bptree_borrow_from_right(BPTreeNode* parent, int idx) {
+    BPTreeNode* child = parent->children[idx];
+    BPTreeNode* right_sibling = parent->children[idx + 1];
+    
+    if (child->is_leaf) {
+        // Move the first key from right sibling to child
+        child->keys[child->num_keys] = right_sibling->keys[0];
+        child->records[child->num_keys] = right_sibling->records[0];
+        child->num_keys++;
+        
+        // Shift all keys and records in right sibling to the left
+        for (int i = 0; i < right_sibling->num_keys - 1; i++) {
+            right_sibling->keys[i] = right_sibling->keys[i + 1];
+            right_sibling->records[i] = right_sibling->records[i + 1];
+        }
+        right_sibling->num_keys--;
+        
+        // Update parent key
+        parent->keys[idx] = right_sibling->keys[0];
+    } else {
+        // Move key from parent to child
+        child->keys[child->num_keys] = parent->keys[idx];
+        child->children[child->num_keys + 1] = right_sibling->children[0];
+        if (child->children[child->num_keys + 1]) {
+            child->children[child->num_keys + 1]->parent = child;
+        }
+        child->num_keys++;
+        
+        // Move key from right sibling to parent
+        parent->keys[idx] = right_sibling->keys[0];
+        
+        // Shift all keys and children in right sibling to the left
+        for (int i = 0; i < right_sibling->num_keys - 1; i++) {
+            right_sibling->keys[i] = right_sibling->keys[i + 1];
+        }
+        for (int i = 0; i < right_sibling->num_keys; i++) {
+            right_sibling->children[i] = right_sibling->children[i + 1];
+        }
+        right_sibling->num_keys--;
+    }
+}
+
+// Merge two nodes
+void bptree_merge_nodes(BPTreeNode* parent, int idx, BPTreeNode* left, BPTreeNode* right) {
+    if (left->is_leaf) {
+        // Merge leaf nodes
+        for (int i = 0; i < right->num_keys; i++) {
+            left->keys[left->num_keys + i] = right->keys[i];
+            left->records[left->num_keys + i] = right->records[i];
+        }
+        left->num_keys += right->num_keys;
+        left->next = right->next;
+    } else {
+        // Merge internal nodes: move key from parent down
+        left->keys[left->num_keys] = parent->keys[idx];
+        left->num_keys++;
+        
+        // Copy keys and children from right to left
+        for (int i = 0; i < right->num_keys; i++) {
+            left->keys[left->num_keys + i] = right->keys[i];
+        }
+        for (int i = 0; i <= right->num_keys; i++) {
+            left->children[left->num_keys + i] = right->children[i];
+            if (left->children[left->num_keys + i]) {
+                left->children[left->num_keys + i]->parent = left;
+            }
+        }
+        left->num_keys += right->num_keys;
     }
     
-    // Note: This is a simplified deletion that doesn't handle underflow
-    // A full implementation would need to handle merging and redistribution
+    // Remove the key from parent
+    for (int i = idx; i < parent->num_keys - 1; i++) {
+        parent->keys[i] = parent->keys[i + 1];
+        parent->children[i + 1] = parent->children[i + 2];
+    }
+    parent->num_keys--;
+    
+    // Free the right node
+    free(right->keys);
+    free(right->children);
+    free(right->records);
+    free(right);
+}
+
+// Bulk load: efficient way to load sorted data into B+ Tree
+void bptree_bulk_load(BPTree* tree, int* keys, struct Record** records, int count) {
+    if (!tree || count == 0) {
+        return;
+    }
+    
+    // For simplicity, use regular insertion
+    // A true bulk load would build the tree bottom-up for better performance
+    for (int i = 0; i < count; i++) {
+        bptree_insert(tree, keys[i], records[i]);
+    }
 }
 
 // Free a node and its children
