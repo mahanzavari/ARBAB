@@ -841,6 +841,181 @@ void select_records_cmd(const char* command) {
         for (int i = 0; i < num_tokens; i++)
            free(tokens[i]);
 }
+
+// JOIN <table1> <table2> ON <table1_column> = <table2_column>
+// Example: JOIN students grades ON students.id = grades.student_id
+void join_tables_cmd(const char* command) {
+    char table1_name[MAX_TABLE_NAME_LENGTH];
+    char table2_name[MAX_TABLE_NAME_LENGTH];
+    char table1_col[MAX_COLUMN_NAME_LENGTH];
+    char table2_col[MAX_COLUMN_NAME_LENGTH];
+    
+    // Parse JOIN command
+    char* tokens[10];
+    int num_tokens = parse_command(command, tokens, 10);
+    
+    if (num_tokens < 6) {
+        printf("Invalid JOIN command. Usage: JOIN <table1> <table2> ON <table1_column> = <table2_column>\n");
+        for (int i = 0; i < num_tokens; i++)
+            free(tokens[i]);
+        return;
+    }
+    
+    // Extract table names and column names
+    strncpy(table1_name, tokens[1], MAX_TABLE_NAME_LENGTH - 1);
+    table1_name[MAX_TABLE_NAME_LENGTH - 1] = '\0';
+    strncpy(table2_name, tokens[2], MAX_TABLE_NAME_LENGTH - 1);
+    table2_name[MAX_TABLE_NAME_LENGTH - 1] = '\0';
+    
+    // Handle column names with potential table prefixes (table.column)
+    char* dot1 = strchr(tokens[4], '.');
+    if (dot1) {
+        strncpy(table1_col, dot1 + 1, MAX_COLUMN_NAME_LENGTH - 1);
+    } else {
+        strncpy(table1_col, tokens[4], MAX_COLUMN_NAME_LENGTH - 1);
+    }
+    table1_col[MAX_COLUMN_NAME_LENGTH - 1] = '\0';
+    
+    char* dot2 = strchr(tokens[6], '.');
+    if (dot2) {
+        strncpy(table2_col, dot2 + 1, MAX_COLUMN_NAME_LENGTH - 1);
+    } else {
+        strncpy(table2_col, tokens[6], MAX_COLUMN_NAME_LENGTH - 1);
+    }
+    table2_col[MAX_COLUMN_NAME_LENGTH - 1] = '\0';
+    
+    // Find both tables
+    Table* table1 = find_table(table1_name);
+    Table* table2 = find_table(table2_name);
+    
+    if (!table1) {
+        printf("Error: Table '%s' not found.\n", table1_name);
+        for (int i = 0; i < num_tokens; i++)
+            free(tokens[i]);
+        return;
+    }
+    
+    if (!table2) {
+        printf("Error: Table '%s' not found.\n", table2_name);
+        for (int i = 0; i < num_tokens; i++)
+            free(tokens[i]);
+        return;
+    }
+    
+    // Find column indices
+    int col1_idx = find_column_index(table1, table1_col);
+    int col2_idx = find_column_index(table2, table2_col);
+    
+    if (col1_idx == -1) {
+        printf("Error: Column '%s' not found in table '%s'.\n", table1_col, table1_name);
+        for (int i = 0; i < num_tokens; i++)
+            free(tokens[i]);
+        return;
+    }
+    
+    if (col2_idx == -1) {
+        printf("Error: Column '%s' not found in table '%s'.\n", table2_col, table2_name);
+        for (int i = 0; i < num_tokens; i++)
+            free(tokens[i]);
+        return;
+    }
+    
+    // Print headers
+    printf("JOIN result:\n");
+    for (int i = 0; i < table1->num_columns; i++) {
+        printf("%-20s", table1->columns[i].name);
+    }
+    for (int i = 0; i < table2->num_columns; i++) {
+        printf("%-20s", table2->columns[i].name);
+    }
+    printf("\n");
+    
+    // Print separator
+    for (int i = 0; i < table1->num_columns + table2->num_columns; i++) {
+        printf("--------------------");
+    }
+    printf("\n");
+    
+    // Perform nested loop join
+    int match_count = 0;
+    Record* rec1 = table1->head;
+    while (rec1) {
+        Record* rec2 = table2->head;
+        while (rec2) {
+            // Check if join condition is satisfied
+            int match = 0;
+            
+            if (strcmp(table1->columns[col1_idx].type, "INTEGER") == 0 &&
+                strcmp(table2->columns[col2_idx].type, "INTEGER") == 0) {
+                if (*(int*)rec1->data[col1_idx] == *(int*)rec2->data[col2_idx]) {
+                    match = 1;
+                }
+            } else if (strcmp(table1->columns[col1_idx].type, "STRING") == 0 &&
+                       strcmp(table2->columns[col2_idx].type, "STRING") == 0) {
+                if (strcmp((char*)rec1->data[col1_idx], (char*)rec2->data[col2_idx]) == 0) {
+                    match = 1;
+                }
+            } else if (strcmp(table1->columns[col1_idx].type, "FLOAT") == 0 &&
+                       strcmp(table2->columns[col2_idx].type, "FLOAT") == 0) {
+                if (*(float*)rec1->data[col1_idx] == *(float*)rec2->data[col2_idx]) {
+                    match = 1;
+                }
+            } else if (strcmp(table1->columns[col1_idx].type, "BOOLEAN") == 0 &&
+                       strcmp(table2->columns[col2_idx].type, "BOOLEAN") == 0) {
+                if (*(int*)rec1->data[col1_idx] == *(int*)rec2->data[col2_idx]) {
+                    match = 1;
+                }
+            } else if (strcmp(table1->columns[col1_idx].type, "DATE") == 0 &&
+                       strcmp(table2->columns[col2_idx].type, "DATE") == 0) {
+                if (strcmp((char*)rec1->data[col1_idx], (char*)rec2->data[col2_idx]) == 0) {
+                    match = 1;
+                }
+            }
+            
+            if (match) {
+                match_count++;
+                // Print table1 columns
+                for (int i = 0; i < table1->num_columns; i++) {
+                    if (strcmp(table1->columns[i].type, "INTEGER") == 0) {
+                        printf("%-20d", *(int*)rec1->data[i]);
+                    } else if (strcmp(table1->columns[i].type, "FLOAT") == 0) {
+                        printf("%-20.2f", *(float*)rec1->data[i]);
+                    } else if (strcmp(table1->columns[i].type, "BOOLEAN") == 0) {
+                        printf("%-20s", *(int*)rec1->data[i] ? "true" : "false");
+                    } else if (strcmp(table1->columns[i].type, "DATE") == 0) {
+                        printf("%-20s", (char*)rec1->data[i]);
+                    } else {
+                        printf("%-20s", (char*)rec1->data[i]);
+                    }
+                }
+                // Print table2 columns
+                for (int i = 0; i < table2->num_columns; i++) {
+                    if (strcmp(table2->columns[i].type, "INTEGER") == 0) {
+                        printf("%-20d", *(int*)rec2->data[i]);
+                    } else if (strcmp(table2->columns[i].type, "FLOAT") == 0) {
+                        printf("%-20.2f", *(float*)rec2->data[i]);
+                    } else if (strcmp(table2->columns[i].type, "BOOLEAN") == 0) {
+                        printf("%-20s", *(int*)rec2->data[i] ? "true" : "false");
+                    } else if (strcmp(table2->columns[i].type, "DATE") == 0) {
+                        printf("%-20s", (char*)rec2->data[i]);
+                    } else {
+                        printf("%-20s", (char*)rec2->data[i]);
+                    }
+                }
+                printf("\n");
+            }
+            
+            rec2 = rec2->next;
+        }
+        rec1 = rec1->next;
+    }
+    
+    printf("\nTotal matches: %d\n", match_count);
+    
+    for (int i = 0; i < num_tokens; i++)
+        free(tokens[i]);
+}
+
 // SAVE <table_name> <filename>
 void save_cmd(const char* command) {
     char table_name[MAX_TABLE_NAME_LENGTH];
@@ -1168,52 +1343,59 @@ void help() {
     printf("   - Use the optional SORTED keyword to sort the results by student-number.\n");
     printf("   - Example: SELECT students WHERE score > 85 SORTED\n\n");
 
+    // JOIN command
+    printf("9. JOIN <table1> <table2> ON <table1_column> = <table2_column>\n");
+    printf("   - Joins two tables based on matching values in specified columns.\n");
+    printf("   - Returns all columns from both tables where the join condition is satisfied.\n");
+    printf("   - Example: JOIN students grades ON students.id = grades.student_id\n\n");
+
     // SAVE CSV command
-    printf("9. SAVE <table_name> <filename> CSV\n");
+    printf("10. SAVE <table_name> <filename> CSV\n");
     printf("   - Saves the specified table to a CSV file.\n");
     printf("   - Example: SAVE students data.csv\n\n");
 
     // LOAD CSV command
-    printf("10. LOAD <table_name> <filename> CSV\n");
+    printf("11. LOAD <table_name> <filename> CSV\n");
     printf("    - Loads the specified table from a CSV file.\n");
     printf("    - Example: LOAD students data.csv\n\n");
 
      // SAVE BINARY command
-    printf("11. SAVE BINARY <table_name> <filename>\n");
+    printf("12. SAVE BINARY <table_name> <filename>\n");
     printf("    - Saves the specified table to a binary file.\n");
     printf("    - Example: SAVE BINARY students data.bin\n\n");
 
     // LOAD BINARY command
-    printf("12. LOAD BINARY <table_name> <filename>\n");
+    printf("13. LOAD BINARY <table_name> <filename>\n");
     printf("    - Loads the specified table from a binary file.\n");
     printf("    - Example: LOAD BINARY students data.bin\n\n");
 
     // BEGIN TRANSACTION command
-    printf("13. BEGIN\n");
+    printf("14. BEGIN\n");
     printf("    - Starts a new transaction. All changes made after this command can be rolled back.\n");
     printf("    - Example: BEGIN\n\n");
 
     // COMMIT TRANSACTION command
-    printf("14. COMMIT\n");
+    printf("15. COMMIT\n");
     printf("    - Commits the current transaction, saving all changes made since the last BEGIN.\n");
     printf("    - Example: COMMIT\n\n");
 
     // ROLLBACK TRANSACTION command
-    printf("15. ROLLBACK\n");
+    printf("16. ROLLBACK\n");
     printf("    - Rolls back the current transaction, undoing all changes made since the last BEGIN.\n");
     printf("    - Example: ROLLBACK\n\n");
 
     // HELP command
-    printf("16. HELP\n");
+    printf("17. HELP\n");
     printf("    - Displays this help message.\n\n");
 
     // EXIT command
-    printf("17. EXIT\n");
+    printf("18. EXIT\n");
     printf("    - Exits the program.\n\n");
 
     // Additional information
     printf("Note:\n");
-    printf("- Column types can be either 'INTEGER' or 'STRING'.\n");
+    printf("- Column types can be 'INTEGER', 'FLOAT', 'BOOLEAN', 'DATE', or 'STRING'.\n");
+    printf("- DATE format should be YYYY-MM-DD.\n");
+    printf("- BOOLEAN accepts 'true', 'false', '1', or '0'.\n");
     printf("- Constraints can include 'UNIQUE', 'PRIMARY KEY', and 'NOT NULL'.\n");
-    printf("- The 'general-course-score' and 'core-course-score' columns must be between 0 and 20.\n");
 }

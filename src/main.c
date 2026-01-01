@@ -47,6 +47,8 @@ int main() {
             } else {
                 select_records_cmd(command); // Handle regular SELECT
             }
+        } else if (strncmp(command, "JOIN", 4) == 0) {
+            join_tables_cmd(command);
         } else if (strcmp(command, "HELP") == 0) {
             help();
         } else if (strcmp(command, "BEGIN") == 0) {

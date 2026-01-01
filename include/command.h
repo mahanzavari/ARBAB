@@ -16,6 +16,7 @@ void delete_record_cmd(const char* command);
 void update_record_cmd(const char* command);
 void select_records_cmd(const char* command);
 void select_records_where_cmd(const char* command);
+void join_tables_cmd(const char* command);
 // concurrency
 void begin_transaction();
 void commit_transaction();
