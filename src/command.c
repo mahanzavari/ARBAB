@@ -10,6 +10,7 @@
 #include "../include/rbtree.h"
 #include "../include/utils.h"
 #include "../include/hashmap.h"
+#include "../include/file_io.h"
 
 typedef struct {
     Table* original_tables[HASHMAP_SIZE];
@@ -256,9 +257,9 @@ int parse_command(const char* command, char** tokens, int max_tokens) {
         return -1; // Memory allocation error
     }
 
-    char* rest = temp_command;
-    char* token;
-    while (token_index < max_tokens && (token = strtok_s(rest, " ", &rest)) != NULL) {
+    char* saveptr;
+    char* token = strtok_r(temp_command, " ", &saveptr);
+    while (token_index < max_tokens && token != NULL) {
         size_t token_len = strlen(token);
         if (token[0] == '"' && token[token_len - 1] == '"') {
             // Remove quotes for quoted strings
@@ -286,6 +287,7 @@ int parse_command(const char* command, char** tokens, int max_tokens) {
               tokens[token_index][token_len] = '\0';
         }
          token_index++;
+         token = strtok_r(NULL, " ", &saveptr);
     }
      free(temp_command);
      return token_index;

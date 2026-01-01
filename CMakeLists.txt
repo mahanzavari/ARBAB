@@ -5,6 +5,8 @@ set(CMAKE_C_STANDARD 99)              # Use C99 standard
 set(CMAKE_C_STANDARD_REQUIRED ON)     # Enforce the C99 standard
 set(CMAKE_C_EXTENSIONS OFF)           # Disable compiler-specific extensions
 
+add_definitions(-D_POSIX_C_SOURCE=200809L)  # Enable POSIX functions like strdup and strtok_r
+
 # Include directories
 include_directories(${CMAKE_SOURCE_DIR}/include)
 

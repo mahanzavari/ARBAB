@@ -56,7 +56,8 @@ void load_from_csv(const char* filename, Table* table) {
 
     while (fgets(line, sizeof(line), file)) {
         char* token;
-        char* rest = line;
+        char* saveptr;
+        token = strtok_r(line, ",\n", &saveptr);
 
         // Dynamically allocate memory for values
         char** values = (char**)malloc(table->num_columns * sizeof(char*));
@@ -68,8 +69,9 @@ void load_from_csv(const char* filename, Table* table) {
 
         int i = 0;
         // Parse CSV line
-        while ((token = strtok_s(rest, ",\n", &rest))) {
+        while (token != NULL) {
             values[i++] = token;
+            token = strtok_r(NULL, ",\n", &saveptr);
         }
 
         // Create and add record
