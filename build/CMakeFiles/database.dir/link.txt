@@ -1,3 +1,0 @@
-"C:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\database.dir/objects.a
-C:\MinGW\bin\ar.exe qc CMakeFiles\database.dir/objects.a @CMakeFiles\database.dir\objects1.rsp
-C:\MinGW\bin\gcc.exe -g -Wl,--whole-archive CMakeFiles\database.dir/objects.a -Wl,--no-whole-archive -o database.exe -Wl,--out-implib,libdatabase.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\database.dir\linkLibs.rsp
