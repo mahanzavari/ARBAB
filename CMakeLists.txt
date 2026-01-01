@@ -21,7 +21,8 @@ set(SOURCE_FILES
     src/bplustree.c
     src/command.c
     src/utils.c
-    src/file_io.c  # Ensure file_io.c is included
+    src/file_io.c
+    src/schema_loader.c
 )
 
 # Create executable

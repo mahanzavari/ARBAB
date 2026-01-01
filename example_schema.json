@@ -1,0 +1,54 @@
+{
+  "tables": [
+    {
+      "name": "students",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "constraints": ["PRIMARY_KEY", "NOT_NULL"]
+        },
+        {
+          "name": "name",
+          "type": "STRING",
+          "constraints": ["NOT_NULL"]
+        },
+        {
+          "name": "gpa",
+          "type": "FLOAT",
+          "constraints": []
+        },
+        {
+          "name": "enrolled",
+          "type": "BOOLEAN",
+          "constraints": []
+        },
+        {
+          "name": "enrollment_date",
+          "type": "DATE",
+          "constraints": []
+        }
+      ]
+    },
+    {
+      "name": "courses",
+      "columns": [
+        {
+          "name": "course_id",
+          "type": "INTEGER",
+          "constraints": ["PRIMARY_KEY", "NOT_NULL"]
+        },
+        {
+          "name": "course_name",
+          "type": "STRING",
+          "constraints": ["NOT_NULL"]
+        },
+        {
+          "name": "credits",
+          "type": "FLOAT",
+          "constraints": []
+        }
+      ]
+    }
+  ]
+}

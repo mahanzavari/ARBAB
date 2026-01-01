@@ -83,6 +83,8 @@ int main() {
             } else {
                 printf("Invalid LOAD BINARY command.\n");
             }
+        } else if (strncmp(command, "LOAD SCHEMA", 11) == 0) {
+            load_schema_cmd(command);
         } else if (strcmp(command, "exit") == 0) {
             break; // Exit the program
         } else {

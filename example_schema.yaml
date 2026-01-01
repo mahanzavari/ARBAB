@@ -1,0 +1,28 @@
+tables:
+  - name: students
+    columns:
+      - name: id
+        type: INTEGER
+        primary_key: true
+        not_null: true
+      - name: name
+        type: STRING
+        not_null: true
+      - name: gpa
+        type: FLOAT
+      - name: enrolled
+        type: BOOLEAN
+      - name: enrollment_date
+        type: DATE
+
+  - name: courses
+    columns:
+      - name: course_id
+        type: INTEGER
+        primary_key: true
+        not_null: true
+      - name: course_name
+        type: STRING
+        not_null: true
+      - name: credits
+        type: FLOAT

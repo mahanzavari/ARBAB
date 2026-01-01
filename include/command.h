@@ -23,6 +23,7 @@ void commit_transaction();
 void rollback_transaction();
 void load_cmd(const char* command);
 void save_cmd(const char* command);
+void load_schema_cmd(const char* command);
 void help();
 int parse_command(const char* command, char** tokens, int max_tokens);
 

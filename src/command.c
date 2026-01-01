@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <ctype.h>
 
 #include "../include/table.h"
 #include "../include/record.h"
@@ -11,6 +12,7 @@
 #include "../include/utils.h"
 #include "../include/hashmap.h"
 #include "../include/file_io.h"
+#include "../include/schema_loader.h"
 
 typedef struct {
     Table* original_tables[HASHMAP_SIZE];
@@ -1109,6 +1111,52 @@ void load_cmd(const char* command) {
             free(tokens[i]);
 }
 
+// LOAD SCHEMA <filename> [JSON|YAML]
+void load_schema_cmd(const char* command) {
+    char filename[256];
+    char format[10] = "JSON"; // Default to JSON
+    
+    char* tokens[5];
+    int num_tokens = parse_command(command, tokens, 5);
+    
+    if (num_tokens < 3) {
+        printf("Invalid LOAD SCHEMA command. Usage: LOAD SCHEMA <filename> [JSON|YAML]\n");
+        for (int i = 0; i < num_tokens; i++)
+            free(tokens[i]);
+        return;
+    }
+    
+    strncpy(filename, tokens[2], 255);
+    filename[255] = '\0';
+    
+    // Check if format is specified
+    if (num_tokens >= 4) {
+        strncpy(format, tokens[3], 9);
+        format[9] = '\0';
+        
+        // Convert to uppercase
+        for (int i = 0; format[i]; i++) {
+            format[i] = toupper(format[i]);
+        }
+    }
+    
+    int result = -1;
+    if (strcmp(format, "JSON") == 0) {
+        result = load_tables_from_json(filename);
+    } else if (strcmp(format, "YAML") == 0 || strcmp(format, "YML") == 0) {
+        result = load_tables_from_yaml(filename);
+    } else {
+        printf("Error: Unsupported format '%s'. Use JSON or YAML.\n", format);
+    }
+    
+    if (result < 0) {
+        printf("Failed to load schema from '%s'\n", filename);
+    }
+    
+    for (int i = 0; i < num_tokens; i++)
+        free(tokens[i]);
+}
+
 void select_records_where_cmd(const char* command) {
      char table_name[MAX_TABLE_NAME_LENGTH];
     char condition[256] = "";
@@ -1369,27 +1417,34 @@ void help() {
     printf("    - Loads the specified table from a binary file.\n");
     printf("    - Example: LOAD BINARY students data.bin\n\n");
 
+    // LOAD SCHEMA command
+    printf("14. LOAD SCHEMA <filename> [JSON|YAML]\n");
+    printf("    - Creates table(s) from a JSON or YAML schema file.\n");
+    printf("    - Default format is JSON if not specified.\n");
+    printf("    - Example: LOAD SCHEMA tables.json\n");
+    printf("    - Example: LOAD SCHEMA tables.yaml YAML\n\n");
+
     // BEGIN TRANSACTION command
-    printf("14. BEGIN\n");
+    printf("15. BEGIN\n");
     printf("    - Starts a new transaction. All changes made after this command can be rolled back.\n");
     printf("    - Example: BEGIN\n\n");
 
     // COMMIT TRANSACTION command
-    printf("15. COMMIT\n");
+    printf("16. COMMIT\n");
     printf("    - Commits the current transaction, saving all changes made since the last BEGIN.\n");
     printf("    - Example: COMMIT\n\n");
 
     // ROLLBACK TRANSACTION command
-    printf("16. ROLLBACK\n");
+    printf("17. ROLLBACK\n");
     printf("    - Rolls back the current transaction, undoing all changes made since the last BEGIN.\n");
     printf("    - Example: ROLLBACK\n\n");
 
     // HELP command
-    printf("17. HELP\n");
+    printf("18. HELP\n");
     printf("    - Displays this help message.\n\n");
 
     // EXIT command
-    printf("18. EXIT\n");
+    printf("19. EXIT\n");
     printf("    - Exits the program.\n\n");
 
     // Additional information
