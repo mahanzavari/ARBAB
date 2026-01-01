@@ -145,7 +145,7 @@ void create_table_cmd(const char* command) {
             return;
         }
 
-         printf("Enter column %d type (INTEGER or STRING): ", i + 1);
+         printf("Enter column %d type (INTEGER, FLOAT, BOOLEAN, DATE, or STRING): ", i + 1);
         if (scanf("%s", column_type) != 1) {
               printf("Error reading column type.\n");
             free(new_table->columns);
@@ -163,8 +163,10 @@ void create_table_cmd(const char* command) {
             return;
          }
 
-        if (strcmp(column_type, "INTEGER") != 0 && strcmp(column_type, "STRING") != 0) {
-            printf("Error: Invalid column type. Use 'INTEGER' or 'STRING'.\n");
+        if (strcmp(column_type, "INTEGER") != 0 && strcmp(column_type, "STRING") != 0 &&
+            strcmp(column_type, "FLOAT") != 0 && strcmp(column_type, "BOOLEAN") != 0 &&
+            strcmp(column_type, "DATE") != 0) {
+            printf("Error: Invalid column type. Use 'INTEGER', 'FLOAT', 'BOOLEAN', 'DATE', or 'STRING'.\n");
             free(new_table->columns);
             free(new_table);
             return;
@@ -464,6 +466,19 @@ void delete_record_cmd(const char* command) {
              if (atoi(value) == *(int*)current->data[col_index]) {
                  match = 1;
              }
+         } else if (strcmp(table->columns[col_index].type, "FLOAT") == 0) {
+             if (atof(value) == *(float*)current->data[col_index]) {
+                 match = 1;
+             }
+         } else if (strcmp(table->columns[col_index].type, "BOOLEAN") == 0) {
+             int bool_val = (strcmp(value, "true") == 0 || strcmp(value, "1") == 0) ? 1 : 0;
+             if (bool_val == *(int*)current->data[col_index]) {
+                 match = 1;
+             }
+         } else if (strcmp(table->columns[col_index].type, "DATE") == 0) {
+             if (strcmp(value, (char*)current->data[col_index]) == 0) {
+                 match = 1;
+             }
          } else if (strcmp(table->columns[col_index].type, "STRING") == 0) {
              if (strcmp(value, (char*)current->data[col_index]) == 0) {
                  match = 1;
@@ -561,6 +576,24 @@ void update_record_cmd(const char* command) {
              if (atoi(old_value) == *(int*)current->data[col_index]) {
                  match = 1;
                  *(int*)current->data[col_index] = atoi(new_value);
+             }
+         } else if (strcmp(table->columns[col_index].type, "FLOAT") == 0) {
+             if (atof(old_value) == *(float*)current->data[col_index]) {
+                 match = 1;
+                 *(float*)current->data[col_index] = atof(new_value);
+             }
+         } else if (strcmp(table->columns[col_index].type, "BOOLEAN") == 0) {
+             int old_bool = (strcmp(old_value, "true") == 0 || strcmp(old_value, "1") == 0) ? 1 : 0;
+             if (old_bool == *(int*)current->data[col_index]) {
+                 match = 1;
+                 int new_bool = (strcmp(new_value, "true") == 0 || strcmp(new_value, "1") == 0) ? 1 : 0;
+                 *(int*)current->data[col_index] = new_bool;
+             }
+         } else if (strcmp(table->columns[col_index].type, "DATE") == 0) {
+             if (strcmp(old_value, (char*)current->data[col_index]) == 0) {
+                 match = 1;
+                 strncpy((char*)current->data[col_index], new_value, 10);
+                 ((char*)current->data[col_index])[10] = '\0';
              }
          } else if (strcmp(table->columns[col_index].type, "STRING") == 0) {
              if (strcmp(old_value, (char*)current->data[col_index]) == 0) {
@@ -678,6 +711,19 @@ void select_records_cmd(const char* command) {
                 if (atoi(value) == *(int*)current->data[col_index]) {
                     match = 1;
                 }
+            } else if (strcmp(table->columns[col_index].type, "FLOAT") == 0) {
+                if (atof(value) == *(float*)current->data[col_index]) {
+                    match = 1;
+                }
+            } else if (strcmp(table->columns[col_index].type, "BOOLEAN") == 0) {
+                int bool_val = (strcmp(value, "true") == 0 || strcmp(value, "1") == 0) ? 1 : 0;
+                if (bool_val == *(int*)current->data[col_index]) {
+                    match = 1;
+                }
+            } else if (strcmp(table->columns[col_index].type, "DATE") == 0) {
+                if (strcmp(value, (char*)current->data[col_index]) == 0) {
+                    match = 1;
+                }
             } else if (strcmp(table->columns[col_index].type, "STRING") == 0) {
                  if (strcmp(value, (char*)current->data[col_index]) == 0) {
                     match = 1;
@@ -690,6 +736,19 @@ void select_records_cmd(const char* command) {
                  if (strcmp(table->columns[second_col_index].type, "INTEGER") == 0) {
                      if (atoi(second_value) == *(int*)current->data[second_col_index]) {
                          second_match = 1;
+                    }
+                 } else if (strcmp(table->columns[second_col_index].type, "FLOAT") == 0) {
+                     if (atof(second_value) == *(float*)current->data[second_col_index]) {
+                         second_match = 1;
+                    }
+                 } else if (strcmp(table->columns[second_col_index].type, "BOOLEAN") == 0) {
+                     int bool_val = (strcmp(second_value, "true") == 0 || strcmp(second_value, "1") == 0) ? 1 : 0;
+                     if (bool_val == *(int*)current->data[second_col_index]) {
+                         second_match = 1;
+                    }
+                 } else if (strcmp(table->columns[second_col_index].type, "DATE") == 0) {
+                    if (strcmp(second_value, (char*)current->data[second_col_index]) == 0) {
+                        second_match = 1;
                     }
                  } else if (strcmp(table->columns[second_col_index].type, "STRING") == 0) {
                     if (strcmp(second_value, (char*)current->data[second_col_index]) == 0) {
@@ -756,7 +815,13 @@ void select_records_cmd(const char* command) {
                 for (int i = 0; i < table->num_columns; i++) {
                      if (strcmp(table->columns[i].type, "INTEGER") == 0) {
                          printf("%-20d", *(int*)print_current->data[i]);
-                   } else {
+                     } else if (strcmp(table->columns[i].type, "FLOAT") == 0) {
+                         printf("%-20.2f", *(float*)print_current->data[i]);
+                     } else if (strcmp(table->columns[i].type, "BOOLEAN") == 0) {
+                         printf("%-20s", *(int*)print_current->data[i] ? "true" : "false");
+                     } else if (strcmp(table->columns[i].type, "DATE") == 0) {
+                         printf("%-20s", (char*)print_current->data[i]);
+                     } else {
                          printf("%-20s", (char*)print_current->data[i]);
                     }
                 }
