@@ -10,6 +10,7 @@
 #include "../include/table.h"
 #include "../include/record.h"  
 #include "../include/file_io.h"
+#include "../include/bplustree.h"
 
 
 int main() {
@@ -102,8 +103,10 @@ int main() {
                 record = next_record;
             }
 
-            // Free the Red-Black Tree index
-            rbt_free_tree(table->index_root);
+            // Free the B+ Tree index
+            if (table->index_tree != NULL) {
+                bptree_free(table->index_tree);
+            }
 
             // Free the table structure
             free(table);

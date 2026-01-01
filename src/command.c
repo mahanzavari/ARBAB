@@ -7,7 +7,7 @@
 
 #include "../include/table.h"
 #include "../include/record.h"
-#include "../include/rbtree.h"
+#include "../include/bplustree.h"
 #include "../include/utils.h"
 #include "../include/hashmap.h"
 #include "../include/file_io.h"
@@ -181,7 +181,7 @@ void create_table_cmd(const char* command) {
 
     new_table->head = NULL;
     new_table->tail = NULL;
-    new_table->index_root = NULL;
+    new_table->index_tree = NULL;
 
     // Insert the new table into the hashmap
     extern HashMap hashmap;
@@ -207,9 +207,9 @@ void delete_table_cmd(const char* command) {
             current = next;
         }
 
-        // Free the Red-Black Tree index
-        if(table->index_root!=NULL)
-            rbt_free_tree(table->index_root);
+        // Free the B+ Tree index
+        if(table->index_tree != NULL)
+            bptree_free(table->index_tree);
 
         // Free the columns array
         free(table->columns);
@@ -236,15 +236,15 @@ void create_index_cmd(const char* command) {
             return;
         }
 
-        // Assuming index is always on student-number (primary key)
-        RBTreeNode* index_root = NULL;
+        // Create B+ Tree index on the primary key (assuming first column)
+        table->index_tree = bptree_create(BPTREE_ORDER);
         Record* current = table->head;
         while (current != NULL) {
-            index_root = rbt_insert(index_root, *(int*)current->data[0], current);
+            int key = *(int*)current->data[0];
+            bptree_insert(table->index_tree, key, current);
             current = current->next;
         }
-        table->index_root = index_root;
-        printf("Index created on table '%s' (student-number).\n", table_name);
+        printf("B+ Tree index created on table '%s' (primary key).\n", table_name);
     } else {
         printf("Invalid CREATE INDEX command.\n");
     }
@@ -398,10 +398,10 @@ void add_record_cmd(const char* command) {
         table->head = new_record;
     }
 
-    // Update the Red-Black Tree index (if applicable)
-    if (table->index_root != NULL) {
+    // Update the B+ Tree index (if applicable)
+    if (table->index_tree != NULL) {
         int student_number = atoi(ordered_values[0]); // Assuming first column is student-number
-        table->index_root = rbt_insert(table->index_root, student_number, new_record);
+        bptree_insert(table->index_tree, student_number, new_record);
     }
 
     printf("Record added to table '%s'.\n", table_name);
