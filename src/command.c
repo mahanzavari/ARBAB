@@ -165,6 +165,11 @@ void create_table_cmd(const char* command) {
             return;
          }
 
+        // Convert type to uppercase for case-insensitive comparison
+        for (int j = 0; column_type[j]; j++) {
+            column_type[j] = toupper((unsigned char)column_type[j]);
+        }
+
         if (strcmp(column_type, "INTEGER") != 0 && strcmp(column_type, "STRING") != 0 &&
             strcmp(column_type, "FLOAT") != 0 && strcmp(column_type, "BOOLEAN") != 0 &&
             strcmp(column_type, "DATE") != 0) {
